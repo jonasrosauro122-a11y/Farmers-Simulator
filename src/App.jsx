@@ -20,6 +20,7 @@ import DirectMailPage from './pages/DirectMailPage.jsx';
 import CustomHomePage from './pages/CustomHomePage.jsx';
 import TrainingPage from './pages/TrainingPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
+import LoginPage from './pages/LoginPage.jsx';
 import { initialDepotLeads, initialLeads } from './data/leads.js';
 import { initialAccounts } from './data/accounts.js';
 import { initialTasks } from './data/tasks.js';
@@ -54,8 +55,17 @@ function App() {
   const [selectedLeadId, setSelectedLeadId] = useState(null);
   const [selectedAccountId, setSelectedAccountId] = useState(null);
 
+  // ---- trainee login/session ----
+  const [traineeSession, setTraineeSession] = useState(() => loadLocal('apexCrm2.traineeSession', null));
+  const [lastLogin, setLastLogin] = useState(() => loadLocal('apexCrm2.lastLogin', null));
+
   // ---- persisted simulator data (v2 keys so older saves don't break the new shape) ----
-  const [user, setUser] = useState(() => loadLocal('apexCrm2.user', defaultUser));
+  const [user, setUser] = useState(() => {
+    const session = loadLocal('apexCrm2.traineeSession', null);
+    return session
+      ? { ...defaultUser, name: session.firstName, fullName: session.displayName, firstName: session.firstName, lastName: session.lastName, batch: session.batch, role: 'Insurance CRM Trainee' }
+      : loadLocal('apexCrm2.user', defaultUser);
+  });
   const [leads, setLeads] = useState(() => loadLocal('apexCrm2.leads', initialLeads));
   const [depotLeads, setDepotLeads] = useState(() => loadLocal('apexCrm2.depot', initialDepotLeads));
   const [claimedHistory, setClaimedHistory] = useState(() => loadLocal('apexCrm2.claimed', []));
@@ -72,6 +82,8 @@ function App() {
   const [taskModal, setTaskModal] = useState(null);   // { defaults: {...} }
   const [toast, setToast] = useState('');
 
+  useEffect(() => saveLocal('apexCrm2.traineeSession', traineeSession), [traineeSession]);
+  useEffect(() => saveLocal('apexCrm2.lastLogin', lastLogin), [lastLogin]);
   useEffect(() => saveLocal('apexCrm2.user', user), [user]);
   useEffect(() => saveLocal('apexCrm2.leads', leads), [leads]);
   useEffect(() => saveLocal('apexCrm2.depot', depotLeads), [depotLeads]);
@@ -98,6 +110,33 @@ function App() {
   ]), [leads, accounts]);
 
   const showToast = (message) => setToast(message);
+
+  const handleLogin = ({ firstName, lastName, batch }) => {
+    const now = new Date().toISOString();
+    const displayName = `${firstName} ${lastName}`;
+    const session = {
+      firstName,
+      lastName,
+      batch,
+      displayName,
+      loginAt: now,
+      initials: `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase()
+    };
+    setTraineeSession(session);
+    setLastLogin(session);
+    setUser({ ...defaultUser, name: firstName, fullName: displayName, firstName, lastName, batch, role: 'Insurance CRM Trainee' });
+    setCurrentPage('home');
+    setPageParam('');
+    showToast(`Welcome, ${firstName}.`);
+  };
+
+  const handleLogout = () => {
+    setTraineeSession(null);
+    setCurrentPage('home');
+    setPageParam('');
+    setSelectedLeadId(null);
+    setSelectedAccountId(null);
+  };
 
   // Navigation accepts "page" or "page:param" (e.g. tasks:today, alerts:Critical, report:renewal).
   const navigate = (target) => {
@@ -246,6 +285,10 @@ function App() {
     if (action === 'new-lead') setLeadModal({ mode: 'new' });
   };
 
+  if (!traineeSession) {
+    return <LoginPage onLogin={handleLogin} lastLogin={lastLogin} />;
+  }
+
   const renderPage = () => {
     switch (currentPage) {
       case 'home':
@@ -281,7 +324,7 @@ function App() {
       case 'training':
         return <TrainingPage onNavigate={navigate} onToast={showToast} />;
       case 'settings':
-        return <SettingsPage user={user} setUser={setUser} onResetData={resetDemoData} />;
+        return <SettingsPage user={user} setUser={setUser} trainee={traineeSession} setTrainee={setTraineeSession} onResetData={resetDemoData} onLogout={handleLogout} />;
       default:
         return <HomePage user={user} leads={leads} accounts={accounts} tasks={tasks} alerts={alerts} depotLeads={depotLeads} onNavigate={navigate} onNewLead={() => setLeadModal({ mode: 'new' })} widgetLayout={widgetLayout} stickyNote={stickyNote} onStickyNoteChange={setStickyNote} />;
     }
@@ -289,7 +332,7 @@ function App() {
 
   return (
     <div className="app-shell">
-      <TopNav currentPage={currentPage} onNavigate={navigate} unreadAlerts={unreadAlerts} onSpecialAction={handleSpecialAction} />
+      <TopNav currentPage={currentPage} onNavigate={navigate} unreadAlerts={unreadAlerts} onSpecialAction={handleSpecialAction} trainee={traineeSession} onLogout={handleLogout} />
       {renderPage()}
       <BottomUtilityBar accounts={accounts} leads={leads} onOpenAccount={selectAccount} onOpenLead={selectLead} onNavigate={navigate} onToast={showToast} />
 
