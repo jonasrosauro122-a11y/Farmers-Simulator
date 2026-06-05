@@ -60,7 +60,7 @@ export const initialAccounts = [
     billing: { method: 'Agency invoice', balance: 612.5, nextDueDate: addDaysISO(14), nextDueAmount: 612.5, status: 'Invoice Open' },
     claims: [],
     documents: [
-      { id: 'DOC-201', name: 'Certificate of Insurance — Farmers Market Vendor', type: 'Certificate', date: addDaysISO(-30) },
+      { id: 'DOC-201', name: 'Certificate of Insurance — Community Market Vendor', type: 'Certificate', date: addDaysISO(-30) },
       { id: 'DOC-202', name: 'WC Payroll Worksheet (renewal)', type: 'Worksheet', date: addDaysISO(-5) }
     ],
     activity: [
