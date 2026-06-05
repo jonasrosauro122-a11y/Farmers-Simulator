@@ -48,7 +48,7 @@ const navItems = [
   ] }
 ];
 
-export default function TopNav({ currentPage, onNavigate, unreadAlerts, onSpecialAction }) {
+export default function TopNav({ currentPage, onNavigate, unreadAlerts, onSpecialAction, trainee, onLogout }) {
   const [openMenu, setOpenMenu] = useState(null);
   const navRef = useRef(null);
 
@@ -112,7 +112,17 @@ export default function TopNav({ currentPage, onNavigate, unreadAlerts, onSpecia
             </div>
           ))}
         </div>
+        {trainee && (
+          <div className="trainee-nav-card" title={`${trainee.displayName} · ${trainee.batch}`}>
+            <span className="trainee-avatar">{trainee.initials || 'TR'}</span>
+            <button className="trainee-summary" onClick={() => onNavigate('settings')}>
+              <strong>{trainee.firstName}</strong>
+              <small>{trainee.batch}</small>
+            </button>
+          </div>
+        )}
         <button className="pencil-button" title="Customize home page" onClick={() => onNavigate('custom-home')}>✎</button>
+        {onLogout && <button className="logout-button" title="Log out trainee" onClick={onLogout}>Logout</button>}
       </nav>
     </header>
   );
