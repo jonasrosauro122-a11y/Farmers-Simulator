@@ -1513,3 +1513,188 @@ button:disabled { cursor: not-allowed; opacity: .55; }
     max-width: calc(100vw - 24px);
   }
 }
+
+/* ===== v5 APEX/Salesforce nav precision update =====
+   Matches the real Farmers/APEX tab structure: compact tab row, no fake slider,
+   main tabs visible through Claims, and remaining labels under More. */
+:root {
+  --nav-height: 68px;
+}
+
+.farmers-top-shell {
+  height: var(--nav-height) !important;
+}
+
+.farmers-utility-row {
+  height: 36px !important;
+}
+
+.farmers-tab-row {
+  height: 32px !important;
+  min-height: 32px !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  align-items: stretch !important;
+  border-top: 1px solid #e5e9f0 !important;
+  border-bottom: 1px solid #9aaec4 !important;
+  background: #fff !important;
+}
+
+.apex-brand {
+  height: 31px !important;
+  min-height: 31px !important;
+  padding: 0 10px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #032d60 !important;
+  border-right: 1px solid #d8dde6 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.farmers-nav-scroll {
+  height: 31px !important;
+  min-height: 31px !important;
+  flex: 1 1 auto !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: stretch !important;
+  gap: 0 !important;
+  white-space: nowrap !important;
+}
+
+.farmers-nav-item-wrap,
+.farmers-more-wrap {
+  height: 31px !important;
+  min-height: 31px !important;
+  display: flex !important;
+  align-items: stretch !important;
+}
+
+.nav-combo,
+.farmers-more-combo {
+  height: 31px !important;
+  min-height: 31px !important;
+  display: flex !important;
+  align-items: stretch !important;
+  border-bottom: 2px solid transparent !important;
+  background: #fff;
+}
+
+.nav-combo.active,
+.nav-combo:hover,
+.farmers-more-combo.active,
+.farmers-more-combo:hover {
+  background: #fff !important;
+  border-bottom-color: #0176d3 !important;
+}
+
+.nav-combo .nav-label,
+.farmers-more-button {
+  height: 29px !important;
+  min-height: 29px !important;
+  padding: 0 5px 0 8px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  color: #080707 !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.nav-arrow {
+  width: 14px !important;
+  min-width: 14px !important;
+  height: 29px !important;
+  min-height: 29px !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  color: #54698d !important;
+  font-size: 10px !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.nav-arrow:hover,
+.farmers-more-button:hover {
+  background: #f3f6fb !important;
+  color: #0176d3 !important;
+}
+
+.nav-badge {
+  min-width: 21px !important;
+  width: 21px !important;
+  height: 21px !important;
+  margin-left: 2px !important;
+  border-radius: 999px !important;
+  background: #d83b32 !important;
+  color: #fff !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  line-height: 21px !important;
+}
+
+.farmers-more-wrap {
+  margin-left: auto !important;
+  flex: 0 0 auto !important;
+  border-left: 1px solid #d8dde6 !important;
+}
+
+.farmers-more-combo {
+  min-width: 78px !important;
+  border-left: 0 !important;
+}
+
+.farmers-more-button {
+  width: 78px !important;
+  padding: 0 10px !important;
+  font-weight: 700 !important;
+  justify-content: center !important;
+}
+
+.farmers-more-caret {
+  margin-left: 5px !important;
+  color: #1b4f72 !important;
+  font-size: 10px !important;
+}
+
+.farmers-dropdown {
+  top: 30px !important;
+}
+
+.farmers-more-dropdown {
+  top: 30px !important;
+  right: 0 !important;
+}
+
+.farmers-pencil {
+  display: none !important;
+}
+
+.farmers-workspace {
+  min-height: calc(100vh - var(--nav-height)) !important;
+  padding-top: 6px !important;
+}
+
+@media (max-width: 1320px) {
+  .nav-combo .nav-label,
+  .farmers-more-button {
+    padding-left: 5px !important;
+    padding-right: 3px !important;
+    font-size: 10.5px !important;
+  }
+
+  .nav-arrow {
+    width: 12px !important;
+    min-width: 12px !important;
+  }
+
+  .farmers-more-combo,
+  .farmers-more-button {
+    min-width: 66px !important;
+    width: 66px !important;
+  }
+}
