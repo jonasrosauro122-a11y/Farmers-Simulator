@@ -42,22 +42,14 @@ const utilityButtons = [
   { label: 'Notifications', icon: '🔔' }
 ];
 
+// Real APEX/Salesforce tab behavior: show main tabs through Claims, then place the rest under More.
+// This avoids the fake horizontal slider and keeps More in the same position as the real portal.
 const MAX_VISIBLE_BEFORE_MORE = navItems.findIndex((item) => item.id === 'calendar');
-const MIN_VISIBLE_ITEMS = 8;
-
-function estimateTabWidth(item, unreadAlerts) {
-  const labelWidth = item.label.length * 6.25;
-  const dropdownWidth = item.dropdown ? 18 : 0;
-  const badgeWidth = item.id === 'alerts' && unreadAlerts > 0 ? 22 : 0;
-  return Math.ceil(22 + labelWidth + dropdownWidth + badgeWidth);
-}
 
 export default function TopNav({ currentPage, onNavigate, unreadAlerts, onSpecialAction, trainee, onLogout }) {
   const [openMenu, setOpenMenu] = useState(null);
   const [openMoreChild, setOpenMoreChild] = useState(null);
-  const [visibleCount, setVisibleCount] = useState(MAX_VISIBLE_BEFORE_MORE);
   const navRef = useRef(null);
-  const tabRowRef = useRef(null);
 
   useEffect(() => {
     if (!openMenu) return undefined;
@@ -71,39 +63,9 @@ export default function TopNav({ currentPage, onNavigate, unreadAlerts, onSpecia
     return () => document.removeEventListener('mousedown', onDocClick);
   }, [openMenu]);
 
-  useEffect(() => {
-    const calculateVisibleTabs = () => {
-      const row = tabRowRef.current;
-      if (!row) return;
 
-      const reserveForApexAndMore = 150;
-      const available = Math.max(360, row.clientWidth - reserveForApexAndMore);
-      const maxVisible = Math.min(MAX_VISIBLE_BEFORE_MORE, navItems.length);
-      let used = 0;
-      let count = 0;
-
-      for (let index = 0; index < maxVisible; index += 1) {
-        const itemWidth = estimateTabWidth(navItems[index], unreadAlerts);
-        if (count >= MIN_VISIBLE_ITEMS && used + itemWidth > available) break;
-        used += itemWidth;
-        count += 1;
-      }
-
-      setVisibleCount(Math.max(Math.min(count, maxVisible), Math.min(MIN_VISIBLE_ITEMS, maxVisible)));
-    };
-
-    calculateVisibleTabs();
-    const observer = new ResizeObserver(calculateVisibleTabs);
-    if (tabRowRef.current) observer.observe(tabRowRef.current);
-    window.addEventListener('resize', calculateVisibleTabs);
-    return () => {
-      observer.disconnect();
-      window.removeEventListener('resize', calculateVisibleTabs);
-    };
-  }, [unreadAlerts]);
-
-  const visibleItems = useMemo(() => navItems.slice(0, visibleCount), [visibleCount]);
-  const moreItems = useMemo(() => navItems.slice(visibleCount), [visibleCount]);
+  const visibleItems = useMemo(() => navItems.slice(0, MAX_VISIBLE_BEFORE_MORE), []);
+  const moreItems = useMemo(() => navItems.slice(MAX_VISIBLE_BEFORE_MORE), []);
 
   const handleLabelClick = (item) => {
     setOpenMenu(null);
@@ -186,7 +148,7 @@ export default function TopNav({ currentPage, onNavigate, unreadAlerts, onSpecia
 
       <nav className="top-nav farmers-tab-row" aria-label="Main navigation" ref={navRef}>
         <div className="brand apex-brand" onClick={() => onNavigate('home')} title="APEX">APEX</div>
-        <div className="nav-scroll farmers-nav-scroll" ref={tabRowRef}>
+        <div className="nav-scroll farmers-nav-scroll">
           {visibleItems.map((item) => (
             <div className="nav-item-wrap farmers-nav-item-wrap" key={item.id}>
               <div className={`nav-combo ${isActive(item) ? 'active' : ''}`}>
