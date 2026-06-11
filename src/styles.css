@@ -1765,3 +1765,456 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .dropdown-menu.farmers-dropdown {
   box-shadow: 0 2px 8px rgba(0, 0, 0, .25) !important;
 }
+
+/* ===== v7 APEX "Make Text Larger" visual scale =====
+   Matches the 100% Farmers/APEX view with the browser/app text size increased.
+   The layout stays three-column on desktop, but navigation, cards, rows, and links
+   now use larger Salesforce-style spacing so the dashboard is readable without zoom. */
+:root {
+  --nav-height: 92px;
+  --bottom-height: 42px;
+}
+
+body {
+  font-size: 14px;
+}
+
+.farmers-top-shell {
+  height: var(--nav-height) !important;
+}
+
+.farmers-utility-row {
+  height: 54px !important;
+  grid-template-columns: 40px 220px minmax(360px, 1fr) auto !important;
+  gap: 12px !important;
+  padding: 6px 14px 5px 12px !important;
+}
+
+.farmers-launcher {
+  width: 34px !important;
+  height: 34px !important;
+  grid-template-columns: repeat(3, 6px) !important;
+  gap: 4px !important;
+}
+
+.farmers-launcher span {
+  width: 6px !important;
+  height: 6px !important;
+}
+
+.farmers-brand {
+  gap: 10px !important;
+}
+
+.brand-mark {
+  width: 34px !important;
+  height: 34px !important;
+  font-size: 15px !important;
+}
+
+.brand-copy strong {
+  font-size: 22px !important;
+  line-height: 1 !important;
+}
+
+.brand-copy em {
+  font-size: 10px !important;
+  line-height: 1 !important;
+}
+
+.farmers-search-area {
+  grid-template-columns: 105px minmax(320px, 520px) !important;
+  gap: 4px !important;
+}
+
+.farmers-search-area select,
+.farmers-search-area input {
+  height: 32px !important;
+  font-size: 13px !important;
+  padding: 4px 10px !important;
+}
+
+.farmers-utility-actions {
+  gap: 7px !important;
+}
+
+.farmers-utility-actions button {
+  min-width: 30px !important;
+  height: 30px !important;
+  font-size: 16px !important;
+}
+
+.farmers-utility-actions button span {
+  min-width: 17px !important;
+  height: 17px !important;
+  font-size: 10px !important;
+}
+
+.farmers-utility-actions .farmers-user {
+  width: 34px !important;
+  height: 34px !important;
+  font-size: 13px !important;
+}
+
+.farmers-tab-row {
+  height: 38px !important;
+  min-height: 38px !important;
+}
+
+.apex-brand {
+  height: 37px !important;
+  min-height: 37px !important;
+  padding: 0 12px !important;
+  font-size: 16px !important;
+}
+
+.farmers-nav-scroll,
+.farmers-nav-item-wrap,
+.farmers-more-wrap,
+.nav-combo,
+.farmers-more-combo {
+  height: 37px !important;
+  min-height: 37px !important;
+}
+
+.nav-combo .nav-label,
+.farmers-more-button {
+  height: 35px !important;
+  min-height: 35px !important;
+  padding: 0 7px 0 10px !important;
+  font-size: 14px !important;
+  gap: 5px !important;
+}
+
+.nav-arrow {
+  width: 22px !important;
+  min-width: 22px !important;
+  height: 35px !important;
+  min-height: 35px !important;
+  font-size: 13px !important;
+}
+
+.nav-badge {
+  min-width: 25px !important;
+  width: 25px !important;
+  height: 25px !important;
+  font-size: 14px !important;
+  line-height: 25px !important;
+}
+
+.farmers-more-combo,
+.farmers-more-button {
+  min-width: 86px !important;
+  width: 86px !important;
+}
+
+.farmers-more-caret {
+  font-size: 13px !important;
+}
+
+.farmers-dropdown,
+.farmers-more-dropdown {
+  top: 36px !important;
+  min-width: 205px !important;
+}
+
+.farmers-dropdown button,
+.farmers-more-label,
+.farmers-more-submenu button {
+  font-size: 14px !important;
+  padding: 10px 13px !important;
+}
+
+.farmers-more-row {
+  min-height: 40px !important;
+}
+
+.farmers-more-row-arrow {
+  height: 40px !important;
+  font-size: 14px !important;
+}
+
+.farmers-workspace {
+  min-height: calc(100vh - var(--nav-height)) !important;
+  padding: 12px 14px 34px !important;
+}
+
+.farmers-dashboard-grid {
+  grid-template-columns: 33.5% 33.5% 33% !important;
+  gap: 14px !important;
+}
+
+.farmers-dashboard-column {
+  gap: 13px !important;
+}
+
+.farmers-panel,
+.farmers-greeting-card,
+.farmers-note-card {
+  border-color: #8fa0b3 !important;
+}
+
+.farmers-panel .panel-header {
+  min-height: 50px !important;
+  padding: 8px 14px !important;
+}
+
+.farmers-panel .panel-title-wrap {
+  gap: 10px !important;
+}
+
+.farmers-panel .panel-icon {
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 4px !important;
+  font-size: 16px !important;
+}
+
+.farmers-panel h2 {
+  font-size: 16px !important;
+  line-height: 1.25 !important;
+}
+
+.farmers-greeting-card .panel-body {
+  padding: 18px 20px 20px !important;
+  border-top-width: 4px !important;
+}
+
+.farmers-date-text {
+  font-size: 14px !important;
+  margin-bottom: 8px !important;
+}
+
+.farmers-greeting-card h1 {
+  font-size: 25px !important;
+  margin-bottom: 22px !important;
+}
+
+.farmers-quote-button {
+  height: 36px !important;
+  font-size: 14px !important;
+}
+
+.farmers-note-card {
+  min-height: 180px !important;
+}
+
+.farmers-note-card textarea {
+  min-height: 180px !important;
+  font-size: 15px !important;
+  padding: 14px !important;
+}
+
+.farmers-mini-action {
+  height: 32px !important;
+  padding: 0 14px !important;
+  font-size: 13px !important;
+}
+
+.farmers-tabs {
+  height: 42px !important;
+}
+
+.farmers-tabs button {
+  font-size: 14px !important;
+  padding: 0 17px !important;
+}
+
+.farmers-news-tabs button {
+  min-width: 130px !important;
+}
+
+.farmers-row-list,
+.farmers-news-list {
+  padding: 0 14px !important;
+}
+
+.farmers-list-row {
+  min-height: 34px !important;
+  font-size: 14px !important;
+}
+
+.farmers-list-row em {
+  font-size: 13px !important;
+}
+
+.farmers-empty-line,
+.farmers-task-empty {
+  min-height: 78px !important;
+  font-size: 13px !important;
+}
+
+.farmers-card-link {
+  min-height: 38px !important;
+  font-size: 14px !important;
+}
+
+.farmers-report-search {
+  grid-template-columns: 1fr 38px !important;
+  gap: 8px !important;
+  padding: 14px !important;
+}
+
+.farmers-report-search input {
+  height: 36px !important;
+  font-size: 14px !important;
+  padding: 0 12px !important;
+}
+
+.farmers-report-search button {
+  font-size: 17px !important;
+}
+
+.farmers-recent-box {
+  min-height: 52px !important;
+  margin: 0 14px 14px !important;
+  padding: 0 14px !important;
+  font-size: 14px !important;
+}
+
+.farmers-service-grid {
+  padding: 14px 18px 8px !important;
+}
+
+.farmers-mini-metric {
+  min-height: 52px !important;
+  grid-template-columns: 56px 1fr !important;
+  font-size: 14px !important;
+}
+
+.farmers-mini-metric span {
+  min-width: 34px !important;
+  height: 34px !important;
+  font-size: 14px !important;
+  padding: 0 8px !important;
+}
+
+.farmers-mini-metric b {
+  font-size: 14px !important;
+  line-height: 1.2 !important;
+}
+
+.farmers-service-grid .farmers-mini-metric:nth-last-child(-n+2) {
+  margin-top: 8px !important;
+  padding-top: 8px !important;
+}
+
+.farmers-recommendation-grid {
+  padding: 14px 18px !important;
+}
+
+.farmers-recommendation-grid .farmers-mini-metric {
+  min-height: 44px !important;
+}
+
+.farmers-warning-row {
+  min-height: 34px !important;
+  font-size: 13px !important;
+  padding: 8px 10px !important;
+}
+
+.farmers-task-list {
+  padding: 8px 14px !important;
+}
+
+.farmers-task-row {
+  padding: 12px 0 !important;
+}
+
+.farmers-task-row strong {
+  font-size: 14px !important;
+}
+
+.farmers-task-row span {
+  font-size: 12px !important;
+}
+
+.farmers-news-row {
+  grid-template-columns: 96px 1fr 84px !important;
+  gap: 8px !important;
+  min-height: 42px !important;
+  padding: 8px 0 !important;
+}
+
+.farmers-news-row span,
+.farmers-news-row em,
+.farmers-news-row strong {
+  font-size: 14px !important;
+}
+
+.farmers-news-row strong {
+  line-height: 1.25 !important;
+}
+
+.farmers-new-apex .panel-body {
+  min-height: 72px !important;
+  padding: 0 22px !important;
+}
+
+.farmers-new-link {
+  font-size: 18px !important;
+}
+
+.helpful-section-title {
+  min-height: 42px !important;
+  grid-template-columns: 22px 30px 1fr !important;
+  gap: 8px !important;
+  font-size: 14px !important;
+  padding: 0 13px !important;
+}
+
+.helpful-arrow,
+.helpful-section-icon {
+  font-size: 18px !important;
+}
+
+.helpful-section-links {
+  padding: 4px 0 8px 48px !important;
+}
+
+.helpful-link-row {
+  min-height: 34px !important;
+  grid-template-columns: 24px 1fr !important;
+  font-size: 14px !important;
+  padding-right: 12px !important;
+}
+
+.helpful-star {
+  font-size: 18px !important;
+}
+
+.bottom-utility {
+  height: var(--bottom-height) !important;
+}
+
+.bottom-utility button {
+  min-width: 145px !important;
+  font-size: 17px !important;
+}
+
+.bottom-utility button span,
+.bottom-utility p {
+  font-size: 13px !important;
+}
+
+@media (max-width: 1320px) {
+  .nav-combo .nav-label,
+  .farmers-more-button {
+    font-size: 12px !important;
+    padding-left: 7px !important;
+    padding-right: 5px !important;
+  }
+
+  .nav-arrow {
+    width: 17px !important;
+    min-width: 17px !important;
+  }
+}
+
+@media (max-width: 840px) {
+  :root { --nav-height: 116px; }
+  .farmers-utility-row {
+    height: 76px !important;
+    grid-template-columns: 34px 1fr auto !important;
+  }
+}
