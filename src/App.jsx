@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import TopNav from './components/TopNav.jsx';
 import BottomUtilityBar from './components/BottomUtilityBar.jsx';
-import LeadFormModal from './components/LeadFormModal.jsx';
+import QuoteNewAccountModal from './components/QuoteNewAccountModal.jsx';
 import TaskFormModal from './components/TaskFormModal.jsx';
 import HomePage from './pages/HomePage.jsx';
 import LeadsPage from './pages/LeadsPage.jsx';
@@ -364,10 +364,10 @@ function App() {
       <BottomUtilityBar accounts={accounts} leads={leads} onOpenAccount={selectAccount} onOpenLead={selectLead} onNavigate={navigate} onToast={showToast} />
 
       {leadModal && leadModal.mode === 'new' && (
-        <LeadFormModal title="Quote New Account / Create Lead" submitLabel="Save Lead" onClose={() => setLeadModal(null)} onSave={addLead} />
+        <QuoteNewAccountModal defaultTab="personal" onClose={() => setLeadModal(null)} onSave={addLead} />
       )}
       {leadModal && leadModal.mode === 'account' && (
-        <LeadFormModal title="Create New Account" submitLabel="Create Account" onClose={() => setLeadModal(null)} onSave={createAccountFromModal} />
+        <QuoteNewAccountModal defaultTab="business" onClose={() => setLeadModal(null)} onSave={createAccountFromModal} />
       )}
       {taskModal && (
         <TaskFormModal relatedOptions={relatedOptions} defaults={{ owner: user.name, ...taskModal.defaults }} onClose={() => setTaskModal(null)} onSave={addTask} />

@@ -1055,3 +1055,333 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   .farmers-dashboard-grid { grid-template-columns: 1fr; }
   .farmers-workspace { padding: 8px; }
 }
+
+/* Quote New Account - Salesforce/APEX style simulator form */
+.quote-modal-backdrop {
+  align-items: start;
+  justify-items: center;
+  padding: 28px 18px 70px;
+  background: rgba(15, 23, 42, .38);
+}
+
+.quote-modal {
+  width: min(1180px, 98vw);
+  max-height: calc(100vh - 54px);
+  background: #fff;
+  border: 1px solid #b8bec7;
+  box-shadow: 0 24px 80px rgba(15, 23, 42, .42);
+  display: flex;
+  flex-direction: column;
+  color: #080707;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.quote-modal-title {
+  text-align: center;
+  font-size: 17px;
+  line-height: 42px;
+  height: 42px;
+  border-bottom: 1px solid #c9c9c9;
+  font-weight: 500;
+  background: #fff;
+}
+
+.quote-tab-bar {
+  position: relative;
+  display: flex;
+  align-items: end;
+  gap: 0;
+  padding: 13px 12px 0;
+  border-bottom: 1px solid #3e3e3c;
+  min-height: 42px;
+  background: #fff;
+}
+
+.quote-tab-bar button {
+  border: 0;
+  background: transparent;
+  padding: 0 10px 10px;
+  font-size: 12px;
+  color: #181818;
+  border-bottom: 3px solid transparent;
+  height: 29px;
+  cursor: pointer;
+}
+
+.quote-tab-bar button.active {
+  border-bottom-color: #0176d3;
+  color: #080707;
+  font-weight: 700;
+}
+
+.quote-required-note {
+  margin-left: auto;
+  padding-bottom: 9px;
+  font-size: 12px;
+  color: #080707;
+}
+
+.quote-required-mark {
+  color: #c23934;
+  font-weight: 700;
+  margin-right: 2px;
+}
+
+.quote-error {
+  margin: 10px 24px 0;
+  padding: 9px 11px;
+  border: 1px solid #c23934;
+  background: #fff4f4;
+  color: #8e0300;
+  font-size: 12px;
+}
+
+.quote-modal-body {
+  overflow: auto;
+  padding: 16px 24px 20px;
+  background: #fff;
+}
+
+.quote-form-panel {
+  min-width: 980px;
+}
+
+.quote-two-column {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 70px;
+}
+
+.quote-top-section {
+  padding: 0 12px 12px;
+}
+
+.quote-grid {
+  display: grid;
+  gap: 9px 18px;
+}
+
+.quote-grid.two-cols {
+  grid-template-columns: 1fr 1fr;
+}
+
+.quote-grid.two-cols.compressed {
+  gap: 9px 12px;
+}
+
+.quote-grid.single-col {
+  grid-template-columns: 1fr;
+}
+
+.quote-grid.city-state {
+  grid-template-columns: minmax(0, 2fr) minmax(120px, .95fr);
+  gap: 12px;
+  margin-top: 9px;
+}
+
+.quote-grid.city-state.nested {
+  margin-top: 0;
+}
+
+.quote-field {
+  display: block;
+  min-width: 0;
+}
+
+.quote-field-label {
+  display: block;
+  color: #3e3e3c;
+  font-size: 10.5px;
+  line-height: 15px;
+  margin-bottom: 2px;
+}
+
+.quote-control {
+  width: 100%;
+  min-height: 32px;
+  border: 1px solid #747474;
+  border-radius: 2px;
+  color: #080707;
+  background: #fff;
+  padding: 5px 8px;
+  font-size: 12px;
+  outline: none;
+}
+
+.quote-control:focus {
+  border-color: #0176d3;
+  box-shadow: 0 0 0 1px #0176d3 inset;
+}
+
+.quote-select {
+  padding-right: 26px;
+}
+
+.quote-textarea {
+  min-height: 48px;
+  resize: vertical;
+}
+
+.quote-subtitle {
+  font-size: 10.5px;
+  font-weight: 700;
+  margin: 0 0 12px;
+  color: #181818;
+}
+
+.quote-subtitle.small {
+  margin: 12px 0 8px;
+}
+
+.quote-date-wrap,
+.quote-lookup-wrap {
+  position: relative;
+}
+
+.quote-date-wrap .quote-control,
+.quote-lookup-wrap .quote-control {
+  padding-right: 29px;
+}
+
+.quote-date-wrap span,
+.quote-lookup-wrap span {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #706e6b;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.quote-info-dot {
+  display: inline-grid;
+  place-items: center;
+  width: 12px;
+  height: 12px;
+  margin-left: 5px;
+  border-radius: 50%;
+  background: #706e6b;
+  color: white;
+  font-size: 8px;
+  line-height: 12px;
+  font-style: normal;
+}
+
+.quote-required-line {
+  margin: 14px 0 10px;
+  border-top: 1px solid #080707;
+  padding-top: 4px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.quote-section-header {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f3f3f3;
+  color: #080707;
+  font-size: 12px;
+  margin: 15px 0 11px;
+  padding: 0 12px;
+  border-radius: 3px;
+}
+
+.quote-section-content {
+  padding: 0 12px;
+}
+
+.last-section {
+  padding-bottom: 18px;
+}
+
+.quote-business-address-block {
+  padding: 0 12px 2px;
+  width: calc(50% - 35px);
+  min-width: 430px;
+}
+
+.quote-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  margin: 0 0 9px 2px;
+}
+
+.quote-checkbox-row input {
+  width: 14px;
+  height: 14px;
+}
+
+.business-office-grid {
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.business-account-info {
+  gap: 70px;
+}
+
+.quote-calculated-note {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  align-items: center;
+  min-height: 24px;
+  font-size: 11px;
+}
+
+.quote-calculated-note strong {
+  font-size: 10.5px;
+  font-weight: 500;
+}
+
+.quote-calculated-note em {
+  color: #3e3e3c;
+}
+
+.quote-modal-footer {
+  display: flex;
+  justify-content: center;
+  gap: 9px;
+  padding: 12px;
+  border-top: 1px solid #c9c9c9;
+  background: #f3f3f3;
+}
+
+.quote-cancel-button,
+.quote-save-button {
+  min-width: 54px;
+  min-height: 30px;
+  border-radius: 3px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.quote-cancel-button {
+  background: #fff;
+  border: 1px solid #747474;
+  color: #0176d3;
+}
+
+.quote-save-button {
+  background: #0176d3;
+  border: 1px solid #0176d3;
+  color: #fff;
+}
+
+.quote-cancel-button:hover { background: #f7fbff; }
+.quote-save-button:hover { background: #014486; }
+
+@media (max-width: 900px) {
+  .quote-modal { width: 100vw; max-height: 100vh; }
+  .quote-form-panel { min-width: 0; }
+  .quote-two-column { grid-template-columns: 1fr; gap: 18px; }
+  .quote-grid.two-cols,
+  .quote-grid.city-state { grid-template-columns: 1fr; }
+  .quote-business-address-block { width: auto; min-width: 0; }
+  .quote-required-note { position: absolute; right: 12px; top: 4px; }
+}
