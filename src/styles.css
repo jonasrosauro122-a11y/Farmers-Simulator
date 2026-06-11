@@ -1698,3 +1698,70 @@ button:disabled { cursor: not-allowed; opacity: .55; }
     width: 66px !important;
   }
 }
+
+/* ===== v6 Dropdown visibility fix =====
+   Keeps the Salesforce-style More tab, removes nav/menu scrollbars,
+   and lets quick-create menus such as Leads > + New Lead open directly
+   below the clicked tab instead of being clipped by the tab row. */
+.farmers-top-shell,
+.farmers-tab-row,
+.farmers-nav-scroll,
+.farmers-nav-item-wrap,
+.farmers-more-wrap {
+  overflow: visible !important;
+}
+
+.farmers-tab-row,
+.farmers-nav-item-wrap,
+.farmers-more-wrap {
+  position: relative !important;
+}
+
+.farmers-nav-scroll {
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+  scrollbar-width: none !important;
+}
+
+.farmers-nav-scroll::-webkit-scrollbar,
+.farmers-more-dropdown::-webkit-scrollbar,
+.farmers-dropdown::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+
+.farmers-dropdown {
+  top: 30px !important;
+  left: 0 !important;
+  z-index: 5000 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  min-width: 170px !important;
+  border-radius: 2px !important;
+}
+
+.farmers-dropdown button {
+  white-space: nowrap !important;
+}
+
+.farmers-more-dropdown {
+  top: 30px !important;
+  right: 0 !important;
+  left: auto !important;
+  z-index: 5000 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.farmers-more-wrap {
+  z-index: 5100 !important;
+}
+
+.farmers-nav-item-wrap:has(.dropdown-menu) {
+  z-index: 5050 !important;
+}
+
+.dropdown-menu.farmers-dropdown {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .25) !important;
+}
