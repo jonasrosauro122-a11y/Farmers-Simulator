@@ -20,6 +20,7 @@ import DirectMailPage from './pages/DirectMailPage.jsx';
 import CustomHomePage from './pages/CustomHomePage.jsx';
 import TrainingPage from './pages/TrainingPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
+import PlaceholderPage from './pages/PlaceholderPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import { initialDepotLeads, initialLeads } from './data/leads.js';
 import { initialAccounts } from './data/accounts.js';
@@ -260,6 +261,23 @@ function App() {
   // ---- alert actions ----
   const setAlertRead = (id, read) => setAlerts((items) => items.map((alert) => (alert.id === id ? { ...alert, read } : alert)));
   const markAllAlertsRead = () => { setAlerts((items) => items.map((alert) => ({ ...alert, read: true }))); showToast('All alerts marked read.'); };
+  const createTrainingAlert = () => {
+    const alert = {
+      id: nextId('AL', alerts),
+      category: 'Pending',
+      severity: 'Medium',
+      date: todayISO(),
+      read: false,
+      title: 'New training alert created',
+      body: 'This is a simulator alert created from the APEX navigation dropdown. Review it, mark it read, or create a task from it.',
+      relatedTo: 'Training Simulator',
+      suggestedAction: 'Review the alert and route it according to the training workflow.'
+    };
+    setAlerts((items) => [alert, ...items]);
+    setCurrentPage('alerts');
+    setPageParam('Pending');
+    showToast('New alert created.');
+  };
 
   const resetDemoData = () => {
     setLeads(initialLeads);
@@ -283,6 +301,7 @@ function App() {
     if (action === 'reset-demo') resetDemoData();
     if (action === 'accounts-new') setLeadModal({ mode: 'account' });
     if (action === 'new-lead') setLeadModal({ mode: 'new' });
+    if (action === 'new-alert') createTrainingAlert();
   };
 
   if (!traineeSession) {
@@ -325,6 +344,14 @@ function App() {
         return <TrainingPage onNavigate={navigate} onToast={showToast} />;
       case 'settings':
         return <SettingsPage user={user} setUser={setUser} trainee={traineeSession} setTrainee={setTraineeSession} onResetData={resetDemoData} onLogout={handleLogout} />;
+      case 'opportunities':
+      case 'insurance-policies':
+      case 'claims':
+      case 'calendar':
+      case 'workable-lists':
+      case 'account-tags':
+      case 'preference-center':
+        return <PlaceholderPage pageId={currentPage} onNavigate={navigate} />;
       default:
         return <HomePage user={user} leads={leads} accounts={accounts} tasks={tasks} alerts={alerts} depotLeads={depotLeads} onNavigate={navigate} onNewLead={() => setLeadModal({ mode: 'new' })} widgetLayout={widgetLayout} stickyNote={stickyNote} onStickyNoteChange={setStickyNote} />;
     }
