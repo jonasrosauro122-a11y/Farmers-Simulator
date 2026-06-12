@@ -121,11 +121,11 @@ export default function HomePage({ user, leads, accounts, tasks, alerts, depotLe
   }, [taskTab, tasks, user.name]);
 
   const birthdayRows = [
-    { name: 'DENISE PAULSON', date: 'Jun 11, 2026' },
-    { name: 'WYATT LARSEN', date: 'Jun 11, 2026' },
-    { name: 'Evelyn S Cortez', date: 'Jun 11, 2026' },
-    { name: 'Christopher Mead', date: 'Jun 11, 2026' },
-    { name: 'EDWINE QUINTANA', date: 'Jun 11, 2026' }
+    { name: 'Yagami Light', date: 'Jun 11, 2026' },
+    { name: 'Arnold Clavio', date: 'Jun 11, 2026' },
+    { name: 'Vice S Ganda', date: 'Jun 11, 2026' },
+    { name: 'Laban Japan', date: 'Jun 11, 2026' },
+    { name: 'Natoy Namahalka', date: 'Jun 11, 2026' }
   ];
 
   const prospectBirthdayRows = accounts
