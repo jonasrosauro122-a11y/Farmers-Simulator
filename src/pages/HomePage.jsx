@@ -121,11 +121,11 @@ export default function HomePage({ user, leads, accounts, tasks, alerts, depotLe
   }, [taskTab, tasks, user.name]);
 
   const birthdayRows = [
-    { name: 'Yagami Light', date: 'Jun 11, 2026' },
-    { name: 'Arnold Clavio', date: 'Jun 11, 2026' },
-    { name: 'Vice S Ganda', date: 'Jun 11, 2026' },
-    { name: 'Laban Japan', date: 'Jun 11, 2026' },
-    { name: 'Natoy Namahalka', date: 'Jun 11, 2026' }
+    { name: 'TRAINING CUSTOMER 001', date: 'Jun 11, 2026' },
+    { name: 'TRAINING CUSTOMER 002', date: 'Jun 11, 2026' },
+    { name: 'TRAINING CUSTOMER 003', date: 'Jun 11, 2026' },
+    { name: 'TRAINING CUSTOMER 004', date: 'Jun 11, 2026' },
+    { name: 'TRAINING CUSTOMER 005', date: 'Jun 11, 2026' }
   ];
 
   const prospectBirthdayRows = accounts
