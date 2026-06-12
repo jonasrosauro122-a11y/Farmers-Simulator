@@ -2572,3 +2572,260 @@ body {
 @media (max-width: 640px) {
   .lava-logo-shell { width: 230px !important; min-height: 96px !important; }
 }
+
+/* ===== Salesforce/Farmers-style Service Requests list view ===== */
+.farmers-service-requests-shell {
+  min-height: calc(100vh - var(--nav-height) - var(--bottom-height));
+  padding: 0 0 26px;
+  background-color: #b4cae1;
+  background-image:
+    repeating-radial-gradient(circle at 22% -28%, rgba(255,255,255,.22) 0 1px, transparent 1px 9px),
+    linear-gradient(180deg, #1b69a6 0 44px, #aac2dd 44px, #eef3f8 90px, #f5f6f8 100%);
+  background-size: 260px 260px, 100% 100%;
+}
+
+.service-requests-card {
+  width: 100%;
+  background: #fff;
+  border-top: 1px solid #9aa8b8;
+  border-bottom: 1px solid #9aa8b8;
+  box-shadow: 0 1px 2px rgba(15,23,42,.18);
+}
+
+.service-requests-header {
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 18px 14px;
+  background: #fff;
+  border-bottom: 1px solid #d0d6de;
+}
+
+.service-requests-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #0f172a;
+  font-size: 18px;
+}
+
+.service-requests-title strong { font-weight: 800; }
+
+.service-requests-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 5px;
+  display: inline-grid;
+  place-items: center;
+  background: #1992ff;
+  color: #fff;
+  font-weight: 900;
+  font-size: 16px;
+}
+
+.service-date-filter {
+  display: grid;
+  gap: 5px;
+  color: #4b5563;
+  font-size: 12px;
+}
+
+.service-date-filter select {
+  min-width: 110px;
+  height: 34px;
+  border: 1px solid #b7c0cc;
+  border-radius: 4px;
+  background: #fff;
+  padding: 0 10px;
+  color: #1f2937;
+}
+
+.service-request-tabs {
+  height: 48px;
+  display: flex;
+  align-items: stretch;
+  background: #f1f1f1;
+  border-bottom: 1px solid #c5cbd3;
+}
+
+.service-request-tabs button {
+  min-width: 128px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: #1f2937;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.service-request-tabs button:hover { background: #fafafa; }
+.service-request-tabs button.active {
+  color: #006dcc;
+  border-bottom-color: #0070d2;
+  background: #fff;
+}
+
+.service-table-wrap {
+  width: 100%;
+  overflow: auto;
+  max-height: calc(100vh - var(--nav-height) - var(--bottom-height) - 130px);
+  background: #fff;
+}
+
+.service-requests-table {
+  width: 100%;
+  min-width: 1320px;
+  border-collapse: collapse;
+  table-layout: fixed;
+  color: #1f2937;
+}
+
+.service-requests-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  height: 45px;
+  background: #f7f7f7;
+  border-right: 1px solid #edf0f3;
+  border-bottom: 1px solid #bfc7d1;
+  padding: 0;
+}
+
+.service-requests-table th button {
+  width: 100%;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 16px 0 18px;
+  color: #4a4f57;
+  font-size: 14px;
+  font-weight: 800;
+  text-align: left;
+}
+
+.service-requests-table th button:hover { background: #eef5fd; }
+.service-column-caret { color: #6b7280; font-size: 21px; line-height: 1; }
+
+.service-requests-table tbody tr {
+  height: 44px;
+  border-bottom: 1px solid #c7cdd6;
+}
+
+.service-requests-table tbody tr:hover { background: #f6fbff; }
+.service-requests-table tbody tr.selected { background: #eaf4ff; }
+
+.service-requests-table td {
+  padding: 0 18px;
+  border-right: 1px solid #edf0f3;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.service-link {
+  border: 0;
+  background: transparent;
+  color: #0070d2;
+  padding: 0;
+  font-size: 14px;
+  text-align: left;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.service-link:hover { text-decoration: underline; color: #005fb2; }
+
+.service-empty-state {
+  min-height: 84px;
+  display: grid;
+  place-items: center;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.service-request-preview {
+  max-width: 1280px;
+  margin: 12px auto 0;
+  display: grid;
+  grid-template-columns: minmax(260px, 1.2fr) minmax(420px, 2fr) auto;
+  gap: 18px;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #aeb8c5;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(15,23,42,.18);
+  padding: 14px 18px;
+}
+
+.service-request-preview p {
+  margin: 0 0 5px;
+  color: #0070d2;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.service-request-preview h2 {
+  margin: 0 0 6px;
+  font-size: 17px;
+  color: #0f172a;
+}
+
+.service-request-preview span { color: #475569; font-size: 13px; }
+
+.service-request-preview dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px 16px;
+}
+
+.service-request-preview div { min-width: 0; }
+.service-request-preview dt {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.service-request-preview dd {
+  margin: 2px 0 0;
+  color: #1f2937;
+  font-size: 13px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.service-request-preview > button {
+  height: 34px;
+  border: 1px solid #7c8a9a;
+  background: #fff;
+  color: #005fb2;
+  border-radius: 4px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.service-request-preview > button:hover { background: #eef7ff; }
+
+@media (max-width: 1180px) {
+  .service-request-preview {
+    grid-template-columns: 1fr;
+  }
+  .service-request-preview dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -14,6 +14,7 @@ import ReportsHubPage from './pages/ReportsHubPage.jsx';
 import ReportsPage from './pages/ReportsPage.jsx';
 import AlertsHubPage from './pages/AlertsHubPage.jsx';
 import AlertsPage from './pages/AlertsPage.jsx';
+import ServiceRequestsPage from './pages/ServiceRequestsPage.jsx';
 import AnalyticsPage from './pages/AnalyticsPage.jsx';
 import LeadImportPage from './pages/LeadImportPage.jsx';
 import DirectMailPage from './pages/DirectMailPage.jsx';
@@ -332,6 +333,8 @@ function App() {
         return <AlertsHubPage alerts={alerts} onNavigate={navigate} />;
       case 'alerts':
         return <AlertsPage alerts={alerts} categoryFilter={pageParam || 'All'} onSetRead={setAlertRead} onMarkAllRead={markAllAlertsRead} onCreateTask={(defaults) => openTaskModal(defaults)} />;
+      case 'service-requests':
+        return <ServiceRequestsPage onToast={showToast} />;
       case 'analytics':
         return <AnalyticsPage leads={leads} accounts={accounts} tasks={tasks} claimedHistory={claimedHistory} />;
       case 'lead-import':
