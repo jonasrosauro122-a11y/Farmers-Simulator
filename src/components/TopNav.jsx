@@ -20,6 +20,7 @@ const navItems = [
     { id: 'analytics', label: 'APEX Analytics' }
   ] },
   { id: 'alerts-hub', label: 'Alerts Hub' },
+  { id: 'service-requests', label: 'Service Requests' },
   { id: 'alerts', label: 'Alerts', dropdown: [{ id: 'new-alert', label: '+ New Alert', special: true }] },
   { id: 'custom-home', label: 'Custom Home Page' },
   { id: 'analytics', label: 'APEX Analytics' },
