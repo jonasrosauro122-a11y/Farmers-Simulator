@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react';
+import lavaWordmark from '../assets/lava-wordmark.png';
+import lavaIcon from '../assets/lava-icon.png';
 
 const ACCOUNT_STORAGE_KEY = 'apexCrm2.vaAccounts';
 
@@ -191,31 +193,31 @@ export default function LoginPage({ onLogin, lastLogin }) {
       <section className="login-hero lava-login-hero">
         <div className="login-brand-block lava-brand-block">
           <div className="lava-logo-shell">
-            <img src="/assets/lava-wordmark.png" alt="LAVA Automation" />
+            <img src={lavaWordmark} alt="LAVA Automation" />
           </div>
           <div>
-            <p className="eyebrow">Insurance Training Environment</p>
-            <h1>LAVA APEX CRM Simulator</h1>
+            <p className="eyebrow">Insurance Operations Training Environment</p>
+            <h1>LAVA Insurance Training Portal</h1>
           </div>
         </div>
 
-        <h2>Formal access for VA training, dashboard practice, and insurance workflow simulation.</h2>
+        <h2>Secure VA access for insurance training, dashboard practice, and workflow simulation.</h2>
         <p>
-          Create your trainee account, sign in with your own password, and continue practicing the Farmers/APEX-style dashboard using training-safe dummy data only.
+          Create your VA simulator account, sign in with your password, and practice the Farmers/APEX-style dashboard using training-safe dummy data only.
         </p>
 
         <div className="login-feature-grid lava-feature-grid">
           <article><strong>VA Account Access</strong><span>Each trainee creates a local simulator profile before entering the training portal.</span></article>
-          <article><strong>Workflow Practice</strong><span>Practice Leads, Accounts, Alerts, Quote New Account, Helpful Links, and dashboard navigation.</span></article>
+          <article><strong>Workflow Practice</strong><span>Practice Leads, Accounts, Alerts, Quote New Account, Helpful Links, and dashboard navigation in one controlled training space.</span></article>
           <article><strong>Training Safe</strong><span>No real customer data, no live carrier login, and no real policy processing inside the simulator.</span></article>
         </div>
       </section>
 
       <section className="login-card lava-login-card" aria-label="VA login and account access form">
         <div className="login-card-header lava-login-card-header">
-          <img src="/assets/lava-icon.png" alt="" aria-hidden="true" />
+          <img src={lavaIcon} alt="" aria-hidden="true" />
           <div>
-            <p className="eyebrow">Secure Training Access</p>
+            <p className="eyebrow">Authorized Training Access</p>
             <h2>{mode === 'create' ? 'Create VA Account' : mode === 'reset' ? 'Reset Password' : 'VA Login'}</h2>
             <span>LAVA Insurance Operations Training Portal</span>
           </div>
