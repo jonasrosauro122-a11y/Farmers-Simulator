@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-// Dashboard-first navigation modeled after the Farmers/APEX Salesforce-style tab bar.
+// Dashboard-first navigation modeled after a Salesforce-style insurance CRM tab bar.
 // Label clicks navigate. Arrow clicks open the requested quick-create menu.
 const navItems = [
   { id: 'home', label: 'Home' },
@@ -26,11 +26,20 @@ const navItems = [
   { id: 'analytics', label: 'APEX Analytics' },
   { id: 'lead-import', label: 'Agency Lead Import' },
   { id: 'direct-mail', label: 'Direct Mail' },
+  { id: 'training', label: 'Training Center', dropdown: [
+    { id: 'scenarios', label: 'Scenarios' },
+    { id: 'product-learning', label: 'Product Learning' }
+  ] },
+  { id: 'personal-lines', label: 'Personal Lines' },
+  { id: 'commercial-lines', label: 'Commercial Lines' },
+  { id: 'quote-center', label: 'Quote Center' },
   { id: 'opportunities', label: 'Opportunities', dropdown: [{ id: 'leads', label: 'Open Opportunities' }, { id: 'new-lead', label: '+ New Opportunity', special: true }] },
   { id: 'insurance-policies', label: 'Insurance Policies', dropdown: [{ id: 'accounts', label: 'Policy List' }, { id: 'report:policy-summary', label: 'Policy Summary Report' }] },
   { id: 'claims', label: 'Claims', dropdown: [{ id: 'alerts:Claims', label: 'Claims Alerts' }, { id: 'training', label: 'Claims Training' }] },
   { id: 'calendar', label: 'Calendar', dropdown: [{ id: 'tasks:today', label: 'Today\'s Work' }, { id: 'tasks', label: 'All Tasks' }] },
   { id: 'workable-lists', label: 'Workable Lists', dropdown: [{ id: 'reports-hub', label: 'Open Lists' }, { id: 'report:open-tasks', label: 'Open Tasks' }] },
+  { id: 'policies', label: 'Policies' },
+  { id: 'customers', label: 'Customers' },
   { id: 'account-tags', label: 'Account Tags', dropdown: [{ id: 'accounts', label: 'Tagged Accounts' }] },
   { id: 'preference-center', label: 'Preference Center', dropdown: [{ id: 'settings', label: 'Simulator Preferences' }] }
 ];
@@ -106,8 +115,7 @@ export default function TopNav({ currentPage, onNavigate, unreadAlerts, onSpecia
   const isActive = (item) => (
     currentPage === item.id ||
     (item.id === 'leads' && currentPage === 'lead-detail') ||
-    (item.id === 'accounts' && currentPage === 'account-detail') ||
-    (item.id === 'alerts' && currentPage === 'alerts-hub')
+    (item.id === 'accounts' && currentPage === 'account-detail')
   );
 
   const moreHasActiveItem = moreItems.some((item) => isActive(item));
@@ -118,9 +126,9 @@ export default function TopNav({ currentPage, onNavigate, unreadAlerts, onSpecia
         <button className="app-launcher farmers-launcher" title="App launcher" onClick={() => onNavigate('home')}>
           <span /> <span /> <span /> <span /> <span /> <span /> <span /> <span /> <span />
         </button>
-        <button className="farmers-brand" onClick={() => onNavigate('home')} title="Farmers/APEX Training Simulator">
-          <span className="brand-mark">⌂</span>
-          <span className="brand-copy"><strong>FARMERS</strong><em>INSURANCE</em></span>
+        <button className="farmers-brand" onClick={() => onNavigate('home')} title="LAVA Insurance CRM Simulator">
+          <span className="brand-mark">▲</span>
+          <span className="brand-copy"><strong>LAVA</strong><em>CRM SIMULATOR</em></span>
         </button>
         <div className="farmers-search-area">
           <select aria-label="Search scope" defaultValue="all">

@@ -81,7 +81,7 @@ const initialBusinessDraft = {
 };
 
 const sourceCategories = [NONE, 'Agency Generated', 'Digital Lead', 'Referral', 'Existing Customer', 'Walk-In', 'Call-In', 'Campaign'];
-const leadSources = [NONE, 'Current Customer Referral', 'Farmers.com', 'Lead Depot', 'Direct Mail', 'Agency Lead Import', 'Phone Inquiry', 'Walk-In', 'Manual Entry'];
+const leadSources = [NONE, 'Current Customer Referral', 'Agency Website', 'Lead Depot', 'Direct Mail', 'Agency Lead Import', 'Phone Inquiry', 'Walk-In', 'Manual Entry'];
 const countries = [NONE, 'United States'];
 const states = [NONE, 'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'FL', 'GA', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'MI', 'MN', 'MO', 'NC', 'NJ', 'NV', 'NY', 'OH', 'OR', 'PA', 'TX', 'UT', 'VA', 'WA', 'WI'];
 const languages = [NONE, 'English', 'Spanish', 'Tagalog', 'Vietnamese', 'Mandarin', 'Other'];
