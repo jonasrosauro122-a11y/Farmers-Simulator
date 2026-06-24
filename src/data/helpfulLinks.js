@@ -1,5 +1,5 @@
-// Farmers/APEX-style helpful links for the simulator home dashboard.
-// These are training-safe labels only. Clicking a link opens an in-app simulator preview.
+// Training-safe "helpful links" for the simulator home dashboard.
+// All labels are generic/dummy. Clicking a link opens an in-app simulator preview.
 
 export const helpfulLinkSections = [
   {
@@ -8,10 +8,10 @@ export const helpfulLinkSections = [
     icon: '★',
     defaultOpen: true,
     links: [
-      'University of Farmers®',
+      'LAVA Training University',
       'Agency Sales Compensation Program',
-      'eFolio Commissions',
-      'FFS Commissions',
+      'Commission Statements',
+      'Service Commissions',
       'Incentives Page',
       'Life Commissions'
     ]
@@ -29,11 +29,11 @@ export const helpfulLinkSections = [
     links: [
       'Agency Deep Dive',
       'No Email on Leads',
-      'Agency Producer Leaderboard',
-      'Business Insurance - Agent Reports',
-      'ICE Reports',
-      'FFS Reports',
-      'Million Dollar Round Table',
+      'Producer Leaderboard',
+      'Business Insurance — Agent Reports',
+      'Engagement Reports',
+      'Service Reports',
+      'Top Performers Club',
       'Triple Crown'
     ]
   },
@@ -44,48 +44,48 @@ export const helpfulLinkSections = [
     links: [
       'Agency Blueprint',
       'Agency Growth Program',
-      'bolt- My Carrier Credentials',
-      'Farmers Supply Source',
+      'Carrier Credentials',
+      'Supply Source',
       'Goals Dashboard',
       'Goals Setup',
       'My Access',
-      'My Agency Self Service (MASS)',
-      'Team Viewer - Start',
-      'Team Viewer - End'
+      'Agency Self Service',
+      'Remote Support — Start',
+      'Remote Support — End'
     ]
   },
   {
     id: 'claims',
     title: 'Claims',
     icon: '▣',
-    links: ['File', 'Report', 'View', 'ACA']
+    links: ['File', 'Report', 'View', 'Claim Assistant']
   },
   {
     id: 'customer-payments',
     title: 'Customer Payments',
     icon: '▣',
-    links: ['paymentus']
+    links: ['Payment Portal']
   },
   {
     id: 'product-platforms',
     title: 'Product Platforms',
     icon: '▣',
     links: [
-      'Bristol West®',
-      'CEA/Diamond',
+      'Specialty Auto',
+      'Earthquake / Diamond',
       'Commercial',
-      'Express',
-      'Express - WIP',
-      'Express - Submitted Apps',
-      'Farmers Financial Solutions®',
-      'Farmers Life®',
+      'Express Quoting',
+      'Express — Work In Progress',
+      'Express — Submitted Apps',
+      'Financial Solutions',
+      'Life',
       'Flood',
-      'Foremost Signature℠',
-      'Foremost® Specialty',
-      'Guidewire PolicyCenter™',
-      'Kraft Lake®',
+      'Signature Home',
+      'Specialty Property',
+      'Policy Center',
+      'Specialty Markets',
       'Life Agent Portal',
-      'Zinnia Live'
+      'Annuity Platform'
     ]
   },
   {
@@ -93,20 +93,20 @@ export const helpfulLinkSections = [
     title: 'Training & Resources',
     icon: '▣',
     links: [
-      'APEX Resources',
-      'University of Farmers®',
+      'LAVA Resources',
+      'LAVA Training University',
       'Agency Training',
-      'DNCQuickcheck®',
-      'Op. Enhancement Form',
+      'Do-Not-Call Quick Check',
+      'Operations Enhancement Form',
       'Case Management',
       'Recycle Bin',
-      'Silversky Archive'
+      'Document Archive'
     ]
   },
   {
     id: 'other-links',
     title: 'Other Links',
     icon: '▣',
-    links: ['Outlook® Webmail', 'Preference Center', 'Service Ops']
+    links: ['Webmail', 'Preference Center', 'Service Ops']
   }
 ];
