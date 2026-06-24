@@ -38,9 +38,10 @@ import { initialTasks } from './data/tasks.js';
 import { initialAlerts } from './data/alerts.js';
 import { initialCampaigns } from './data/campaigns.js';
 import { defaultUser } from './data/users.js';
-import { loadLocal, nextId, saveLocal } from './utils/storage.js';
+import { clearStoreKeys, hydrateStore, loadLocal, nextId, saveLocal } from './utils/storage.js';
 import { addDaysISO, todayISO } from './utils/dates.js';
 import { pathToState, targetToPath } from './routes.js';
+import { getSupabase, isSupabaseConfigured } from './lib/supabaseClient.js';
 
 // Default home dashboard layout. Order matters — Custom Home Page lets trainees reorder it.
 export const defaultWidgetLayout = [
@@ -60,7 +61,7 @@ function Toast({ toast }) {
   return <div className="toast" role="status">{toast}</div>;
 }
 
-function App() {
+function Workspace({ session, onSignOut }) {
   // ---- routing (URL-driven) ----
   const location = useLocation();
   const routerNavigate = useNavigate();
@@ -70,17 +71,19 @@ function App() {
   const selectedLeadId = route.leadId || null;
   const selectedAccountId = route.accountId || null;
 
-  // ---- trainee login/session ----
-  const [traineeSession, setTraineeSession] = useState(() => loadLocal('apexCrm3.traineeSession', null));
-  const [lastLogin, setLastLogin] = useState(() => loadLocal('apexCrm3.lastLogin', null));
+  // ---- trainee identity (from Supabase Auth, or the local preview session) ----
+  const [trainee, setTrainee] = useState(session.profile);
 
   // ---- persisted simulator data ----
-  const [user, setUser] = useState(() => {
-    const session = loadLocal('apexCrm3.traineeSession', null);
-    return session
-      ? { ...defaultUser, name: session.firstName, fullName: session.displayName, firstName: session.firstName, lastName: session.lastName, batch: session.batch, role: 'Insurance CRM Trainee' }
-      : loadLocal('apexCrm3.user', defaultUser);
-  });
+  const [user, setUser] = useState(() => ({
+    ...defaultUser,
+    name: session.profile.firstName,
+    fullName: session.profile.displayName,
+    firstName: session.profile.firstName,
+    lastName: session.profile.lastName,
+    batch: session.profile.batch,
+    role: 'Insurance CRM Trainee'
+  }));
   const [leads, setLeads] = useState(() => loadLocal('apexCrm3.leads', initialLeads));
   const [depotLeads, setDepotLeads] = useState(() => loadLocal('apexCrm3.depot', initialDepotLeads));
   const [claimedHistory, setClaimedHistory] = useState(() => loadLocal('apexCrm3.claimed', []));
@@ -97,8 +100,6 @@ function App() {
   const [taskModal, setTaskModal] = useState(null);   // { defaults: {...} }
   const [toast, setToast] = useState('');
 
-  useEffect(() => saveLocal('apexCrm3.traineeSession', traineeSession), [traineeSession]);
-  useEffect(() => saveLocal('apexCrm3.lastLogin', lastLogin), [lastLogin]);
   useEffect(() => saveLocal('apexCrm3.user', user), [user]);
   useEffect(() => saveLocal('apexCrm3.leads', leads), [leads]);
   useEffect(() => saveLocal('apexCrm3.depot', depotLeads), [depotLeads]);
@@ -116,14 +117,12 @@ function App() {
     return () => window.clearTimeout(timeout);
   }, [toast]);
 
-  // Keep the URL and the login state in sync (deep links + refresh friendly).
+  // Send the root and the old /login path to the dashboard once signed in.
   useEffect(() => {
-    if (!traineeSession && location.pathname !== '/login') {
-      routerNavigate('/login', { replace: true });
-    } else if (traineeSession && (location.pathname === '/login' || location.pathname === '/')) {
+    if (location.pathname === '/' || location.pathname === '/login') {
       routerNavigate('/dashboard', { replace: true });
     }
-  }, [traineeSession, location.pathname, routerNavigate]);
+  }, [location.pathname, routerNavigate]);
 
   const selectedLead = useMemo(() => leads.find((lead) => lead.id === selectedLeadId), [leads, selectedLeadId]);
   const selectedAccount = useMemo(() => accounts.find((account) => account.id === selectedAccountId), [accounts, selectedAccountId]);
@@ -135,27 +134,20 @@ function App() {
 
   const showToast = (message) => setToast(message);
 
-  const handleLogin = ({ firstName, lastName, batch }) => {
-    const now = new Date().toISOString();
-    const displayName = `${firstName} ${lastName}`;
-    const session = {
-      firstName,
-      lastName,
-      batch,
-      displayName,
-      loginAt: now,
-      initials: `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase()
-    };
-    setTraineeSession(session);
-    setLastLogin(session);
-    setUser({ ...defaultUser, name: firstName, fullName: displayName, firstName, lastName, batch, role: 'Insurance CRM Trainee' });
-    routerNavigate('/dashboard');
-    showToast(`Welcome, ${firstName}.`);
+  // Editing the profile in Settings updates the in-session display name and,
+  // when Supabase auth is active, the trainee's auth metadata.
+  const updateTrainee = (next) => {
+    setTrainee(next);
+    const supabase = getSupabase();
+    if (supabase && !session.local) {
+      supabase.auth
+        .updateUser({ data: { first_name: next.firstName, last_name: next.lastName, batch: next.batch } })
+        .catch((error) => console.error('Profile update failed', error));
+    }
   };
 
   const handleLogout = () => {
-    setTraineeSession(null);
-    routerNavigate('/login');
+    onSignOut();
   };
 
   // Navigation accepts "page" or "page:param" (e.g. tasks:today, alerts:Critical, report:renewal).
@@ -302,13 +294,7 @@ function App() {
     setWidgetLayout(defaultWidgetLayout);
     setRecentReports([]);
     setStickyNote('');
-    try {
-      localStorage.removeItem('apexCrm3.book');
-      localStorage.removeItem('apexCrm3.training');
-      localStorage.removeItem('apexCrm3.scenarioScores');
-    } catch {
-      // ignore storage errors
-    }
+    clearStoreKeys(['apexCrm3.book', 'apexCrm3.training', 'apexCrm3.scenarioScores']).catch((error) => console.error(error));
     routerNavigate('/dashboard');
     showToast('Demo data reset to defaults.');
   };
@@ -319,10 +305,6 @@ function App() {
     if (action === 'new-lead') setLeadModal({ mode: 'new' });
     if (action === 'new-alert') createTrainingAlert();
   };
-
-  if (!traineeSession) {
-    return <LoginPage onLogin={handleLogin} lastLogin={lastLogin} />;
-  }
 
   const renderPage = () => {
     switch (currentPage) {
@@ -375,7 +357,7 @@ function App() {
       case 'commercial-lines':
         return <CommercialLinesPage onNavigate={navigate} />;
       case 'settings':
-        return <SettingsPage user={user} setUser={setUser} trainee={traineeSession} setTrainee={setTraineeSession} onResetData={resetDemoData} onLogout={handleLogout} />;
+        return <SettingsPage user={user} setUser={setUser} trainee={trainee} setTrainee={updateTrainee} onResetData={resetDemoData} onLogout={handleLogout} />;
       case 'opportunities':
       case 'claims':
       case 'calendar':
@@ -392,7 +374,7 @@ function App() {
 
   return (
     <div className="app-shell">
-      <TopNav currentPage={currentPage} onNavigate={navigate} unreadAlerts={unreadAlerts} onSpecialAction={handleSpecialAction} trainee={traineeSession} onLogout={handleLogout} />
+      <TopNav currentPage={currentPage} onNavigate={navigate} unreadAlerts={unreadAlerts} onSpecialAction={handleSpecialAction} trainee={trainee} onLogout={handleLogout} />
       {renderPage()}
       <BottomUtilityBar accounts={accounts} leads={leads} onOpenAccount={selectAccount} onOpenLead={selectLead} onNavigate={navigate} onToast={showToast} />
 
@@ -408,6 +390,118 @@ function App() {
       <Toast toast={toast} />
     </div>
   );
+}
+
+// Build the trainee profile shown around the app from a Supabase auth user.
+function profileFromUser(authUser) {
+  const meta = authUser.user_metadata || {};
+  const firstName = meta.first_name || (authUser.email || 'Trainee').split('@')[0];
+  const lastName = meta.last_name || '';
+  const displayName = `${firstName} ${lastName}`.trim() || 'Trainee';
+  return {
+    firstName,
+    lastName,
+    batch: meta.batch || 'Training Batch',
+    displayName,
+    initials: `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase() || 'TR',
+    email: authUser.email || '',
+    loginAt: new Date().toISOString()
+  };
+}
+
+function profileFromLocal(form) {
+  const firstName = form.firstName || 'Trainee';
+  const lastName = form.lastName || '';
+  return {
+    firstName,
+    lastName,
+    batch: form.batch || 'Local Preview',
+    displayName: `${firstName} ${lastName}`.trim() || 'Trainee',
+    initials: `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase() || 'TR',
+    email: '',
+    loginAt: new Date().toISOString()
+  };
+}
+
+function BootScreen() {
+  return (
+    <div className="boot-screen">
+      <div className="boot-spinner" aria-hidden="true" />
+      <p>Loading your training workspace…</p>
+    </div>
+  );
+}
+
+// Auth gate: resolves the Supabase session (or local preview), hydrates shared +
+// per-user data from Supabase, then mounts the workspace. Mounting only after
+// hydration means the workspace's state initializers read the synced data.
+function App() {
+  const supabase = getSupabase();
+  const [phase, setPhase] = useState('loading'); // 'loading' | 'auth' | 'ready'
+  const [session, setSession] = useState(null);
+
+  const enterSession = async (nextSession) => {
+    setPhase('loading');
+    const userId = nextSession.local ? null : nextSession.user.id;
+    await hydrateStore(userId);
+    setSession(nextSession);
+    setPhase('ready');
+  };
+
+  useEffect(() => {
+    let active = true;
+
+    if (!supabase) {
+      const guest = loadLocal('apexCrm3.localSession', null);
+      if (guest) enterSession({ local: true, user: { id: 'local' }, profile: guest });
+      else setPhase('auth');
+      return undefined;
+    }
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (!active) return;
+      if (data.session) enterSession({ user: data.session.user, profile: profileFromUser(data.session.user) });
+      else setPhase('auth');
+    });
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      if (!active) return;
+      if (nextSession) enterSession({ user: nextSession.user, profile: profileFromUser(nextSession.user) });
+      else {
+        setSession(null);
+        setPhase('auth');
+      }
+    });
+
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleLocalEnter = (form) => {
+    const profile = profileFromLocal(form);
+    saveLocal('apexCrm3.localSession', profile);
+    enterSession({ local: true, user: { id: 'local' }, profile });
+  };
+
+  const handleSignOut = async () => {
+    if (supabase) await supabase.auth.signOut();
+    try {
+      localStorage.removeItem('apexCrm3.localSession');
+    } catch {
+      // ignore
+    }
+    setSession(null);
+    setPhase('auth');
+  };
+
+  if (phase === 'loading') return <BootScreen />;
+  if (phase === 'auth' || !session) {
+    return <LoginPage supabaseReady={isSupabaseConfigured()} onLocalEnter={handleLocalEnter} />;
+  }
+  return <Workspace key={session.user.id} session={session} onSignOut={handleSignOut} />;
 }
 
 export default App;
