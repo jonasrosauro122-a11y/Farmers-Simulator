@@ -1,60 +1,62 @@
 import { useMemo, useState } from 'react';
-import Panel from '../components/Panel.jsx';
-import InfoTip from '../components/InfoTip.jsx';
-import { ACCOUNT_STATUSES } from '../data/accounts.js';
-
-const statusFilters = ['All', ...ACCOUNT_STATUSES];
+import { SfButton, SfEmptyState, SfListHeader, SfListToolbar } from '../components/SalesforceMock.jsx';
 
 export default function AccountsPage({ accounts, onSelectAccount, onNewAccount }) {
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('All');
-
   const visible = useMemo(() => {
-    const value = search.trim().toLowerCase();
-    return accounts.filter((account) => {
-      if (status !== 'All' && account.status !== status) return false;
-      const text = `${account.household} ${account.primaryContact} ${account.email} ${account.phone} ${account.policies.map((policy) => policy.number).join(' ')}`.toLowerCase();
-      return !value || text.includes(value);
-    });
-  }, [accounts, search, status]);
+    const term = search.trim().toLowerCase();
+    if (!term) return accounts;
+    return accounts.filter((account) => `${account.household} ${account.primaryContact} ${account.email} ${account.phone}`.toLowerCase().includes(term));
+  }, [accounts, search]);
 
   return (
-    <main className="workspace page-bg">
-      <div className="page-header">
-        <div>
-          <p className="eyebrow">Customer Database</p>
-          <h1>Accounts <InfoTip text="Each card is a household or business. Open one to see the full customer profile: household members, policies, billing, claims, documents, notes, and related tasks." /></h1>
-          <span>Search by name, email, phone, or policy number.</span>
+    <main className="sf-page sf-page-white">
+      <SfListHeader objectName="Accounts" icon="▦" iconTone="blue" itemCount={visible.length}>
+        <SfButton onClick={onNewAccount}>New</SfButton>
+        <SfButton>Bulk Actions</SfButton>
+        <SfButton>Quick Send Email</SfButton>
+        <SfButton>Share</SfButton>
+        <SfButton>Delete Shared List View</SfButton>
+      </SfListHeader>
+
+      <SfListToolbar search={search} onSearch={setSearch} />
+
+      {visible.length === 0 ? (
+        <SfEmptyState title="Nothing to see here" text="There's nothing in your list yet. Try adding a new record." />
+      ) : (
+        <div className="sf-table-wrap">
+          <table className="sf-data-table">
+            <thead>
+              <tr>
+                <th><input type="checkbox" aria-label="Select all accounts" /></th>
+                <th>Account Name</th>
+                <th>Primary Contact</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Type</th>
+                <th>Billing</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {visible.map((account) => (
+                <tr key={account.id}>
+                  <td><input type="checkbox" aria-label={`Select ${account.household}`} /></td>
+                  <td><button className="sf-table-link" onClick={() => onSelectAccount(account.id)}>{account.household}</button></td>
+                  <td>{account.primaryContact}</td>
+                  <td>{account.phone || '—'}</td>
+                  <td>{account.email || '—'}</td>
+                  <td>{account.status}</td>
+                  <td>{account.type || 'Personal Lines'}</td>
+                  <td>{account.billing?.status || '—'}</td>
+                  <td><button className="sf-row-menu">▾</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-        <button className="primary-button" onClick={onNewAccount}>+ New Account</button>
-      </div>
-      <Panel>
-        <div className="toolbar">
-          <input className="search-input" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search account, contact, email, phone, or policy number..." />
-        </div>
-        <div className="segmented-control left">
-          {statusFilters.map((item) => (
-            <button key={item} className={status === item ? 'active' : ''} onClick={() => setStatus(item)}>
-              {item}{item !== 'All' && ` (${accounts.filter((account) => account.status === item).length})`}
-            </button>
-          ))}
-        </div>
-        <div className="account-grid">
-          {visible.length === 0 && <div className="empty-state">No accounts match. Try a partial name or a policy number like PA-100245.</div>}
-          {visible.map((account) => (
-            <button className="account-card" key={account.id} onClick={() => onSelectAccount(account.id)}>
-              <div><h3>{account.household}</h3><p>{account.primaryContact}</p></div>
-              <span className={`status-chip account-${account.status.toLowerCase()}`}>{account.status}</span>
-              <small>{account.email} · {account.phone}</small>
-              <div className="policy-strip">
-                {account.policies.length === 0 && <b>No policies yet</b>}
-                {account.policies.map((policy) => <b key={policy.number}>{policy.line}: {policy.number}</b>)}
-              </div>
-              <em>Billing: {account.billing.status}</em>
-            </button>
-          ))}
-        </div>
-      </Panel>
+      )}
     </main>
   );
 }

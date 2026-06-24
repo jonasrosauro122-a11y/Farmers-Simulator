@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import lavaWordmark from '../assets/lava-wordmark.png';
 import lavaIcon from '../assets/lava-icon.png';
 
-const ACCOUNT_STORAGE_KEY = 'apexCrm2.vaAccounts';
+const ACCOUNT_STORAGE_KEY = 'apexCrm3.vaAccounts';
 
 function formatLoginTime(value) {
   if (!value) return 'No previous login recorded yet.';
@@ -203,7 +203,7 @@ export default function LoginPage({ onLogin, lastLogin }) {
 
         <h2>Secure VA access for insurance training, dashboard practice, and workflow simulation.</h2>
         <p>
-          Create your VA simulator account, sign in with your password, and practice the Farmers/APEX-style dashboard using training-safe dummy data only.
+          Create your VA simulator account, sign in with your password, and practice the Salesforce-style insurance CRM dashboard using training-safe dummy data only.
         </p>
 
         <div className="login-feature-grid lava-feature-grid">
@@ -298,7 +298,7 @@ export default function LoginPage({ onLogin, lastLogin }) {
 
             <label>
               <span>Training Batch</span>
-              <input className="input" value={createForm.batch} onChange={(event) => updateCreate('batch', event.target.value)} onBlur={() => setTouched(true)} placeholder="Example: Farmers Batch 01 - June 2026" />
+              <input className="input" value={createForm.batch} onChange={(event) => updateCreate('batch', event.target.value)} onBlur={() => setTouched(true)} placeholder="Example: Training Batch 01 - June 2026" />
               {touched && createErrors.batch && <small className="form-error">{createErrors.batch}</small>}
             </label>
 

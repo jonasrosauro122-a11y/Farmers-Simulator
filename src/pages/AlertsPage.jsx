@@ -1,104 +1,92 @@
 import { useMemo, useState } from 'react';
-import Panel from '../components/Panel.jsx';
 import Modal from '../components/Modal.jsx';
-import InfoTip from '../components/InfoTip.jsx';
-import { ALERT_CATEGORIES } from '../data/alerts.js';
+import { SfButton, SfListHeader, SfListToolbar } from '../components/SalesforceMock.jsx';
 import { todayISO } from '../utils/dates.js';
 
 export default function AlertsPage({ alerts, categoryFilter = 'All', onSetRead, onMarkAllRead, onCreateTask }) {
-  const [filter, setFilter] = useState(ALERT_CATEGORIES.includes(categoryFilter) ? categoryFilter : 'All');
-  const [showUnreadOnly, setShowUnreadOnly] = useState(false);
+  const [search, setSearch] = useState('');
   const [detailId, setDetailId] = useState(null);
 
   const visible = useMemo(() => {
-    let list = alerts;
-    if (filter !== 'All') list = list.filter((a) => a.category === filter);
-    if (showUnreadOnly) list = list.filter((a) => !a.read);
-    return list;
-  }, [alerts, filter, showUnreadOnly]);
+    const term = search.trim().toLowerCase();
+    return alerts
+      .filter((alert) => categoryFilter === 'All' || !categoryFilter || alert.category === categoryFilter)
+      .filter((alert) => !term || `${alert.title} ${alert.relatedTo} ${alert.category} ${alert.status || ''}`.toLowerCase().includes(term));
+  }, [alerts, categoryFilter, search]);
 
-  const detail = alerts.find((a) => a.id === detailId);
+  const detail = alerts.find((alert) => alert.id === detailId);
 
-  const openDetail = (alert) => {
-    setDetailId(alert.id);
-    if (!alert.read) onSetRead(alert.id, true);
-  };
-
-  const taskFromAlert = (alert) => {
-    setDetailId(null);
+  const createTask = (alert) => {
     onCreateTask({
-      title: alert.suggestedAction || `Follow up: ${alert.title}`,
-      relatedTo: alert.relatedTo || 'Agency',
-      relatedType: 'Account',
+      title: alert.suggestedAction || `Follow up on ${alert.title}`,
+      relatedTo: alert.relatedTo || 'Training Household',
+      relatedType: 'Alert',
       priority: alert.severity === 'Critical' || alert.severity === 'High' ? 'High' : 'Medium',
       dueDate: todayISO(),
-      notes: `Created from alert ${alert.id}: ${alert.title}`
+      notes: `Created from simulator alert ${alert.id}.`
     });
   };
 
   return (
-    <main className="workspace page-bg">
-      <div className="page-header">
-        <div>
-          <p className="eyebrow">Alerts</p>
-          <h1>{filter === 'All' ? 'All Alerts' : `${filter} Alerts`} <InfoTip text="Click an alert to open its detail. Opening an alert marks it read. From the detail you can create a follow-up task with the suggested action pre-filled." /></h1>
-          <span>Review service notifications, mark them read, and route items correctly.</span>
-        </div>
-        <button className="outline-button" onClick={onMarkAllRead}>Mark All Read</button>
+    <main className="sf-page sf-page-white">
+      <SfListHeader objectName="Alerts" icon="🔔" iconTone="pink" itemCount={visible.length}>
+        <SfButton onClick={() => createTask(visible[0] || {})}>New</SfButton>
+      </SfListHeader>
+
+      <SfListToolbar search={search} onSearch={setSearch} />
+
+      <div className="sf-table-wrap">
+        <table className="sf-data-table sf-alerts-simple-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Alert Name</th>
+              <th>Alert</th>
+              <th>Account</th>
+              <th>Household</th>
+              <th>Due Date</th>
+              <th>Status</th>
+              <th>Alert Tab</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {visible.map((alert, index) => (
+              <tr key={alert.id}>
+                <td>{index + 1}</td>
+                <td><button className="sf-table-link" onClick={() => setDetailId(alert.id)}>{alert.alertName || `Alert ${alert.id.replace(/\D/g, '')}`}</button></td>
+                <td><button className="sf-table-link" onClick={() => setDetailId(alert.id)}>View Alert</button></td>
+                <td><button className="sf-table-link">{alert.account || 'Riverstone Household'}</button></td>
+                <td><button className="sf-table-link">{alert.relatedTo || 'Riverstone Household'}</button></td>
+                <td>{alert.date}</td>
+                <td><span className={alert.read ? 'sf-status-complete' : 'sf-status-process'} /> {alert.read ? 'Completed' : 'In Process'}</td>
+                <td>{alert.category || 'Renewal Alerts'}</td>
+                <td><button className="sf-row-menu" onClick={() => onSetRead(alert.id, !alert.read)}>▾</button></td>
+              </tr>
+            ))}
+            {visible.length === 0 && <tr><td colSpan="9"><div className="sf-inline-empty">No alerts found.</div></td></tr>}
+          </tbody>
+        </table>
       </div>
 
-      <Panel>
-        <div className="segmented-control left wrap">
-          {['All', ...ALERT_CATEGORIES].map((item) => (
-            <button key={item} className={filter === item ? 'active' : ''} onClick={() => setFilter(item)}>
-              {item} ({item === 'All' ? alerts.length : alerts.filter((a) => a.category === item).length})
-            </button>
-          ))}
-        </div>
-        <label className="toggle-inline">
-          <input type="checkbox" checked={showUnreadOnly} onChange={(e) => setShowUnreadOnly(e.target.checked)} />
-          <span>Unread only</span>
-        </label>
-
-        {visible.length === 0 ? (
-          <div className="empty-state compact">No alerts in this view. 🎉</div>
-        ) : (
-          <div className="tile-list">
-            {visible.map((alert) => (
-              <div className={`alert-card ${alert.read ? 'read' : ''}`} key={alert.id}>
-                <button className="alert-main" onClick={() => openDetail(alert)}>
-                  <span className={`severity ${alert.severity.toLowerCase()}`}>{alert.severity}</span>
-                  <h3>{alert.title}</h3>
-                  <p>{alert.body}</p>
-                  <small>{alert.date} · {alert.category} · {alert.relatedTo}</small>
-                </button>
-                <div className="alert-actions">
-                  <button className="outline-button compact" onClick={() => onSetRead(alert.id, !alert.read)}>
-                    {alert.read ? 'Mark Unread' : 'Mark Read'}
-                  </button>
-                  <button className="outline-button compact" onClick={() => taskFromAlert(alert)}>Create Task</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </Panel>
+      <div className="sf-alerts-footer-actions">
+        <button onClick={onMarkAllRead}>Mark All Read</button>
+      </div>
 
       {detail && (
-        <Modal title={`Alert ${detail.id} — ${detail.category}`} onClose={() => setDetailId(null)}>
-          <div className="alert-detail">
-            <span className={`severity ${detail.severity.toLowerCase()}`}>{detail.severity}</span>
+        <Modal title={detail.alertName || `Alert ${detail.id}`} onClose={() => setDetailId(null)}>
+          <div className="sf-modal-detail-copy">
             <h3>{detail.title}</h3>
             <p>{detail.body}</p>
-            <dl className="info-list">
-              <div><dt>Date</dt><dd>{detail.date}</dd></div>
+            <dl>
               <div><dt>Related To</dt><dd>{detail.relatedTo}</dd></div>
+              <div><dt>Category</dt><dd>{detail.category}</dd></div>
               <div><dt>Suggested Action</dt><dd>{detail.suggestedAction}</dd></div>
             </dl>
           </div>
           <div className="button-row right">
-            <button className="outline-button" onClick={() => setDetailId(null)}>Close</button>
-            <button className="primary-button" onClick={() => taskFromAlert(detail)}>Create Task from Alert</button>
+            <button className="outline-button" onClick={() => onSetRead(detail.id, true)}>Mark Completed</button>
+            <button className="primary-button" onClick={() => createTask(detail)}>Create Task</button>
           </div>
         </Modal>
       )}

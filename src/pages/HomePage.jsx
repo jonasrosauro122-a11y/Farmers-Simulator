@@ -42,7 +42,7 @@ function HelpfulLinks({ onOpenLink }) {
     return acc;
   }, {});
   const [openSections, setOpenSections] = useState(defaultOpen);
-  const [favorites, setFavorites] = useState(() => new Set(['University of Farmers®']));
+  const [favorites, setFavorites] = useState(() => new Set(['LAVA Training University']));
 
   const toggleSection = (id) => setOpenSections((current) => ({ ...current, [id]: !current[id] }));
   const toggleFavorite = (event, label) => {
@@ -218,8 +218,8 @@ export default function HomePage({ user, leads, accounts, tasks, alerts, depotLe
 
           <Panel title="Sales & Marketing Notifications" icon="▣" className="farmers-panel farmers-marketing-panel">
             <div className="farmers-recommendation-grid">
-              <MiniMetric value={0} label="Farmers FastQuote®" onClick={() => onNavigate('lead-depot')} />
-              <MiniMetric value={0} label="BI Farmers.com" onClick={() => onNavigate('lead-depot')} />
+              <MiniMetric value={0} label="Agency FastQuote" onClick={() => onNavigate('lead-depot')} />
+              <MiniMetric value={0} label="BI Agency Web" onClick={() => onNavigate('lead-depot')} />
               <MiniMetric value={Math.max(13, depotLeads.length)} label="High Value FFRs" onClick={() => onNavigate('lead-depot')} />
             </div>
           </Panel>

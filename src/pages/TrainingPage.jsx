@@ -1,142 +1,186 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Panel from '../components/Panel.jsx';
 import InfoTip from '../components/InfoTip.jsx';
-import { assessmentQuestions, trainingScenarios } from '../data/content.js';
+import { ComplianceBanner } from '../components/ComplianceGuard.jsx';
+import { trainingTracks } from '../data/training.js';
+import { assessmentQuestions } from '../data/content.js';
 import { loadLocal, saveLocal } from '../utils/storage.js';
 
-const MODULES = [
-  { title: 'Home', what: 'Daily landing page: alerts, tasks due today, news, and shortcuts.' },
-  { title: 'Leads', what: 'Prospects you are working. Track status from New through Converted or Lost.' },
-  { title: 'Lead Depot', what: 'Unassigned inbound leads. Claim one to move it into My Leads.' },
-  { title: 'Accounts', what: 'Existing customers: household, policies, billing, claims, documents, activity.' },
-  { title: 'Tasks', what: 'Your to-do queue with owners, priorities, and due dates.' },
-  { title: 'Reports Hub', what: 'Catalog of reports computed live from simulator data.' },
-  { title: 'Alerts', what: 'Service notifications that need review, documentation, or routing.' },
-  { title: 'Direct Mail', what: 'Campaign workflow practice: audience, template, preview, status.' },
-  { title: 'Account Lookup', what: 'Bottom-bar search by name, phone, email, or policy number.' }
-];
-
-export default function TrainingPage({ onNavigate, onToast }) {
-  const [openScenario, setOpenScenario] = useState(null);
-  const [checked, setChecked] = useState(() => loadLocal('apexCrm2.training', {}));
+export default function TrainingPage({
+  onNavigate,
+  onToast,
+  onNewLead,
+  onNewAccount,
+  onNewTask
+}) {
+  const [done, setDone] = useState(() => loadLocal('apexCrm3.training', {}));
   const [answers, setAnswers] = useState({});
   const [graded, setGraded] = useState(false);
 
-  useEffect(() => saveLocal('apexCrm2.training', checked), [checked]);
+  useEffect(() => saveLocal('apexCrm3.training', done), [done]);
 
-  const toggleStep = (scenarioId, stepIndex) => {
-    const key = `${scenarioId}:${stepIndex}`;
-    setChecked((prev) => ({ ...prev, [key]: !prev[key] }));
+  const allPractice = useMemo(
+    () => trainingTracks.flatMap((t) => t.practice.map((p) => p.id)),
+    []
+  );
+  const completedCount = allPractice.filter((id) => done[id]).length;
+  const pct = Math.round((completedCount / allPractice.length) * 100);
+
+  const runAction = (action) => {
+    if (action === 'new-lead') return onNewLead && onNewLead();
+    if (action === 'new-account') return onNewAccount && onNewAccount();
+    if (action === 'new-task') return onNewTask && onNewTask();
+    return onNavigate && onNavigate(action);
   };
 
-  const scenarioProgress = (scenario) =>
-    scenario.steps.filter((_, i) => checked[`${scenario.id}:${i}`]).length;
-
-  const score = assessmentQuestions.filter((q) => answers[q.id] === q.answer).length;
-
-  const grade = () => {
-    if (Object.keys(answers).length < assessmentQuestions.length) {
-      onToast('Answer every question before grading.');
-      return;
-    }
-    setGraded(true);
+  const toggleTask = (id) => {
+    setDone((prev) => {
+      const next = { ...prev, [id]: !prev[id] };
+      if (!prev[id] && onToast) onToast('Practice task marked complete.');
+      return next;
+    });
   };
+
+  const score = graded
+    ? assessmentQuestions.reduce(
+        (acc, q) => acc + (answers[q.id] === q.answer ? 1 : 0),
+        0
+      )
+    : 0;
 
   return (
     <main className="workspace page-bg">
-      <div className="page-header">
+      <header className="page-header">
         <div>
           <p className="eyebrow">Training Center</p>
-          <h1>VA Training & Scenarios <InfoTip text="Start with the module guide, work through the scenario checklists (your progress saves automatically), then take the mock assessment." /></h1>
-          <span>Module explanations, realistic VA scenarios, checklists, and a mock assessment.</span>
+          <h1>VA Training Curriculum</h1>
+          <p className="helper-text">
+            Five tracks of insurance CRM practice. Work through the learning
+            modules, then complete the hands-on practice tasks &mdash; each one
+            launches a real action in the simulator.
+          </p>
         </div>
+        <div className="button-row">
+          <button className="outline-button" onClick={() => onNavigate && onNavigate('scenarios')}>
+            Open Scenarios
+          </button>
+          <button className="outline-button" onClick={() => onNavigate && onNavigate('product-learning')}>
+            Product Learning
+          </button>
+        </div>
+      </header>
+
+      <ComplianceBanner />
+
+      <Panel title="Your progress" icon="📈">
+        <div className="progress-wrap">
+          <div className="progress-bar">
+            <span style={{ width: `${pct}%` }} />
+          </div>
+          <p className="helper-text">
+            {completedCount} of {allPractice.length} practice tasks complete ({pct}%)
+          </p>
+        </div>
+      </Panel>
+
+      <div className="track-grid">
+        {trainingTracks.map((track) => {
+          const trackDone = track.practice.filter((p) => done[p.id]).length;
+          return (
+            <Panel
+              key={track.id}
+              title={`${track.icon} ${track.title}`}
+              className="track-card"
+            >
+              <p className="subhead">Learning modules</p>
+              <ul className="module-list">
+                {track.modules.map((m) => (
+                  <li key={m}>{m}</li>
+                ))}
+              </ul>
+
+              <p className="subhead">
+                Practice tasks
+                <span className="track-count">{trackDone}/{track.practice.length}</span>
+              </p>
+              <ul className="practice-list">
+                {track.practice.map((p) => (
+                  <li key={p.id} className={done[p.id] ? 'practice-row done' : 'practice-row'}>
+                    <label className="practice-check">
+                      <input
+                        type="checkbox"
+                        checked={!!done[p.id]}
+                        onChange={() => toggleTask(p.id)}
+                      />
+                      <span>{p.label}</span>
+                    </label>
+                    <button className="text-button" onClick={() => runAction(p.action)}>
+                      Go &rarr;
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </Panel>
+          );
+        })}
       </div>
 
-      <Panel title="Compliance First" icon="⚖️">
-        <div className="compliance-box">
-          <strong>Non-licensed VAs must never:</strong> give coverage advice, bind or cancel coverage,
-          quote without producer approval, or interpret policy coverage. When in doubt, document the
-          request and create a task for licensed staff.
-        </div>
-      </Panel>
-
-      <Panel title="What Each Module Does" icon="🧭">
-        <div className="guidance-grid three-cols">
-          {MODULES.map((m) => <div key={m.title}><h3>{m.title}</h3><p>{m.what}</p></div>)}
-        </div>
-      </Panel>
-
-      <Panel title="Practice Scenarios" icon="🧪">
-        <p className="helper-text">Each scenario is a checklist walkthrough. Checked steps are saved to this browser so trainees can resume later.</p>
-        <div className="card-grid three">
-          {trainingScenarios.map((scenario) => (
-            <button className="report-card" key={scenario.id} onClick={() => setOpenScenario(openScenario === scenario.id ? null : scenario.id)}>
-              <span>{scenario.icon} {scenarioProgress(scenario)}/{scenario.steps.length} steps</span>
-              <h3>{scenario.title}</h3>
-              <p>{scenario.description}</p>
-              <em>{openScenario === scenario.id ? 'Hide checklist ↑' : 'Open checklist →'}</em>
-            </button>
+      <Panel title="Mock assessment" icon="📝" action={<InfoTip text="Answer all questions and grade yourself. Nothing is saved or shared." />}>
+        <ol className="quiz-list">
+          {assessmentQuestions.map((q) => (
+            <li key={q.id} className="quiz-item">
+              <p className="quiz-question">{q.question}</p>
+              <div className="quiz-options">
+                {q.options.map((opt, i) => {
+                  const picked = answers[q.id] === i;
+                  const correct = graded && i === q.answer;
+                  const wrong = graded && picked && i !== q.answer;
+                  return (
+                    <label
+                      key={i}
+                      className={
+                        'quiz-option' +
+                        (picked ? ' picked' : '') +
+                        (correct ? ' correct' : '') +
+                        (wrong ? ' wrong' : '')
+                      }
+                    >
+                      <input
+                        type="radio"
+                        name={q.id}
+                        checked={picked}
+                        onChange={() => setAnswers((a) => ({ ...a, [q.id]: i }))}
+                      />
+                      <span>{opt}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </li>
           ))}
-        </div>
-        {trainingScenarios.filter((s) => s.id === openScenario).map((scenario) => (
-          <div className="scenario-detail" key={scenario.id}>
-            <h3>{scenario.icon} {scenario.title} — Checklist</h3>
-            <div className="tile-list">
-              {scenario.steps.map((step, i) => (
-                <label className="checklist-row" key={i}>
-                  <input type="checkbox" checked={Boolean(checked[`${scenario.id}:${i}`])} onChange={() => toggleStep(scenario.id, i)} />
-                  <span>{step}</span>
-                </label>
-              ))}
-            </div>
-            <p className="compliance-note">⚖️ {scenario.compliance}</p>
-          </div>
-        ))}
-      </Panel>
-
-      <Panel title="Mock Assessment" icon="📝">
-        {assessmentQuestions.map((q, qi) => (
-          <div className="quiz-question" key={q.id}>
-            <strong>{qi + 1}. {q.question}</strong>
-            <div className="quiz-options">
-              {q.options.map((option, oi) => {
-                let cls = '';
-                if (graded) {
-                  if (oi === q.answer) cls = 'correct';
-                  else if (answers[q.id] === oi) cls = 'incorrect';
-                }
-                return (
-                  <label className={`pick-row ${answers[q.id] === oi ? 'selected' : ''} ${cls}`} key={oi}>
-                    <input type="radio" name={q.id} checked={answers[q.id] === oi} disabled={graded}
-                      onChange={() => setAnswers((prev) => ({ ...prev, [q.id]: oi }))} />
-                    <span>{option}</span>
-                  </label>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-        <div className="button-row">
-          {!graded
-            ? <button className="primary-button" onClick={grade}>Grade Assessment</button>
-            : (
-              <>
-                <strong className="quiz-score">Score: {score}/{assessmentQuestions.length} {score === assessmentQuestions.length ? '— perfect! 🎉' : ''}</strong>
-                <button className="outline-button" onClick={() => { setAnswers({}); setGraded(false); }}>Retake</button>
-              </>
-            )}
-        </div>
-      </Panel>
-
-      <Panel title="Suggested Practice Flow" icon="📚">
-        <ol className="training-list">
-          <li>Start on Home and identify the critical service alerts.</li>
-          <li>Use Account Lookup (bottom bar) to find a customer by policy number.</li>
-          <li>Open Lead Depot, claim a lead, then update its status from the lead detail page.</li>
-          <li>Create a task from an alert and mark it completed in Tasks.</li>
-          <li>Open Reports Hub and export the Renewal Report to CSV.</li>
         </ol>
-        <button className="primary-button" onClick={() => onNavigate('home')}>Start Practice</button>
+        <div className="button-row">
+          <button className="primary-button" onClick={() => setGraded(true)}>
+            Grade assessment
+          </button>
+          <button
+            className="outline-button"
+            onClick={() => {
+              setAnswers({});
+              setGraded(false);
+            }}
+          >
+            Reset answers
+          </button>
+        </div>
+        {graded && (
+          <p className="compliance-note" style={{ marginTop: 12 }}>
+            You scored {score} of {assessmentQuestions.length}.{' '}
+            {score === assessmentQuestions.length
+              ? 'Perfect — ready for live practice.'
+              : 'Review the highlighted answers and try again.'}
+          </p>
+        )}
       </Panel>
     </main>
   );

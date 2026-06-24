@@ -1,98 +1,71 @@
 import { useMemo, useState } from 'react';
-import Panel from '../components/Panel.jsx';
-import InfoTip from '../components/InfoTip.jsx';
-import { isDueToday, isOverdue } from '../utils/dates.js';
-
-const VIEWS = ['All', 'My Tasks', 'Agency', 'High Priority', 'Due Today', 'Overdue', 'Completed'];
-
-function viewFromParam(param) {
-  const map = { my: 'My Tasks', agency: 'Agency', high: 'High Priority', today: 'Due Today', overdue: 'Overdue', completed: 'Completed' };
-  return map[param] || 'All';
-}
 
 export default function TasksPage({ tasks, user, initialView = '', onUpdateTask, onNewTask }) {
-  const [view, setView] = useState(viewFromParam(initialView));
   const [search, setSearch] = useState('');
-
-  const counts = useMemo(() => ({
-    'All': tasks.length,
-    'My Tasks': tasks.filter((t) => t.owner === user.name).length,
-    'Agency': tasks.filter((t) => t.owner !== user.name).length,
-    'High Priority': tasks.filter((t) => t.priority === 'High' && t.status !== 'Completed').length,
-    'Due Today': tasks.filter((t) => isDueToday(t.dueDate) && t.status !== 'Completed').length,
-    'Overdue': tasks.filter((t) => isOverdue(t.dueDate) && t.status !== 'Completed').length,
-    'Completed': tasks.filter((t) => t.status === 'Completed').length
-  }), [tasks, user.name]);
-
   const visible = useMemo(() => {
-    let list = tasks;
-    if (view === 'My Tasks') list = list.filter((t) => t.owner === user.name);
-    if (view === 'Agency') list = list.filter((t) => t.owner !== user.name);
-    if (view === 'High Priority') list = list.filter((t) => t.priority === 'High' && t.status !== 'Completed');
-    if (view === 'Due Today') list = list.filter((t) => isDueToday(t.dueDate) && t.status !== 'Completed');
-    if (view === 'Overdue') list = list.filter((t) => isOverdue(t.dueDate) && t.status !== 'Completed');
-    if (view === 'Completed') list = list.filter((t) => t.status === 'Completed');
     const term = search.trim().toLowerCase();
-    if (term) list = list.filter((t) => `${t.title} ${t.relatedTo} ${t.owner}`.toLowerCase().includes(term));
-    return list;
-  }, [tasks, view, search, user.name]);
-
-  const dueLabel = (task) => {
-    if (task.status === 'Completed') return <em className="due-chip done">Completed</em>;
-    if (isOverdue(task.dueDate)) return <em className="due-chip overdue">Overdue · {task.dueDate}</em>;
-    if (isDueToday(task.dueDate)) return <em className="due-chip today">Due Today</em>;
-    return <em className="due-chip">Due {task.dueDate}</em>;
-  };
+    const list = initialView === 'today'
+      ? tasks.filter((task) => task.status !== 'Completed')
+      : tasks;
+    if (!term) return list;
+    return list.filter((task) => `${task.title} ${task.relatedTo} ${task.owner}`.toLowerCase().includes(term));
+  }, [tasks, search, initialView]);
 
   return (
-    <main className="workspace page-bg">
-      <div className="page-header">
-        <div>
-          <p className="eyebrow">Daily Execution</p>
-          <h1>Tasks <InfoTip text="Tasks track calls, follow-ups, document requests, and escalations. Use the views to slice by owner, priority, and due date. Checking the box marks a task complete." /></h1>
-          <span>Track calls, follow-ups, document requests, and escalation items.</span>
-        </div>
-        <button className="primary-button" onClick={onNewTask}>+ New Task</button>
-      </div>
+    <main className="sf-pattern-page sf-tasks-page">
+      <section className="sf-task-list-card">
+        <header className="sf-task-card-header">
+          <span className="sf-object-icon green">▤</span>
+          <div>
+            <h1>Recently Viewed <button>⌄</button></h1>
+            <p>{visible.length} item{visible.length === 1 ? '' : 's'} • Updated a few seconds ago</p>
+          </div>
+          <button className="sf-pin task-pin">⚑</button>
+          <button className="sf-task-menu" onClick={onNewTask}>▾</button>
+        </header>
 
-      <Panel>
-        <div className="segmented-control left wrap">
-          {VIEWS.map((item) => (
-            <button key={item} className={view === item ? 'active' : ''} onClick={() => setView(item)}>
-              {item} ({counts[item]})
-            </button>
-          ))}
+        <div className="sf-task-actions">
+          <button title="Display options">▦⌄</button>
+          <button title="Refresh">⟳</button>
         </div>
-        <div className="search-line">
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search tasks by title, related record, or owner..." />
-        </div>
+
+        <label className="sf-task-search">
+          <span>⌕</span>
+          <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search this list..." />
+        </label>
+
+        <table className="sf-task-mini-table">
+          <thead>
+            <tr>
+              <th><input type="checkbox" aria-label="Select all tasks" /></th>
+              <th>Recently Viewed <span>↓</span></th>
+              <th>i</th>
+            </tr>
+          </thead>
+        </table>
 
         {visible.length === 0 ? (
-          <div className="empty-state compact">No tasks match this view. Create one with “+ New Task”.</div>
+          <div className="sf-task-empty">
+            <p>You haven't viewed any Tasks recently.<br />Try switching list views.</p>
+          </div>
         ) : (
-          <div className="tile-list">
+          <div className="sf-task-recent-list">
             {visible.map((task) => (
-              <div className="task-card" key={task.id}>
+              <label key={task.id} className="sf-task-recent-row">
                 <input
                   type="checkbox"
                   checked={task.status === 'Completed'}
-                  onChange={(e) => onUpdateTask(task.id, { status: e.target.checked ? 'Completed' : 'Open' })}
-                  title="Mark complete"
+                  onChange={(event) => onUpdateTask(task.id, { status: event.target.checked ? 'Completed' : 'Open' })}
                 />
-                <div>
-                  <h3 className={task.status === 'Completed' ? 'task-done' : ''}>{task.title}</h3>
-                  <p>{task.relatedTo} · {task.relatedType} · Owner: {task.owner}</p>
-                  {task.notes ? <span className="task-note">{task.notes}</span> : null}
-                </div>
-                <div className="task-meta">
-                  {dueLabel(task)}
-                  <em className={`priority ${task.priority.toLowerCase()}`}>{task.priority}</em>
-                </div>
-              </div>
+                <span>
+                  <strong>{task.title}</strong>
+                  <em>{task.relatedTo} · Owner: {task.owner || user.name}</em>
+                </span>
+              </label>
             ))}
           </div>
         )}
-      </Panel>
+      </section>
     </main>
   );
 }

@@ -1,175 +1,86 @@
-import { useMemo } from 'react';
-import Panel from '../components/Panel.jsx';
-import InfoTip from '../components/InfoTip.jsx';
-import { reportCatalog } from '../data/reports.js';
-import { LEAD_STATUSES } from '../data/leads.js';
-import { exportToCsv } from '../utils/csv.js';
-import { daysUntil, isDueToday, isOverdue, todayISO } from '../utils/dates.js';
+import { useMemo, useState } from 'react';
+import { EmptyLightningGraphic } from '../components/SalesforceMock.jsx';
 
-function Bar({ label, value, max, suffix = '' }) {
-  const percent = max > 0 ? Math.round((value / max) * 100) : 0;
-  return (
-    <div className="bar-row">
-      <div><span>{label}</span><strong>{value.toLocaleString()}{suffix}</strong></div>
-      <div className="bar-track"><i style={{ width: `${Math.min(percent, 100)}%` }} /></div>
-    </div>
-  );
-}
-
-function ReportTable({ headers, rows }) {
-  return (
-    <div className="table-wrap">
-      <table className="data-table">
-        <thead><tr>{headers.map((h) => <th key={h}>{h}</th>)}</tr></thead>
-        <tbody>
-          {rows.length === 0
-            ? <tr><td colSpan={headers.length}><span className="metric-caption">No records for this report yet.</span></td></tr>
-            : rows.map((row, i) => <tr key={i}>{row.map((cell, j) => <td key={j}>{cell}</td>)}</tr>)}
-        </tbody>
-      </table>
-    </div>
-  );
-}
+const sideGroups = [
+  { title: 'REPORTS', items: ['Recent', 'Created by Me', 'Private Reports', 'Public Reports', 'All Reports'] },
+  { title: 'FOLDERS', items: ['All Folders', 'Created by Me', 'Shared with Me'] },
+  { title: 'FAVORITES', items: ['All Favorites'] }
+];
 
 export default function ReportsPage({ reportId = '', leads, accounts, tasks, onNavigate, onToast }) {
-  const allPolicies = useMemo(
-    () => accounts.flatMap((a) => a.policies.map((p) => ({ ...p, household: a.household, accountStatus: a.status }))),
-    [accounts]
-  );
-  const allClaims = useMemo(
-    () => accounts.flatMap((a) => a.claims.map((c) => ({ ...c, household: a.household }))),
-    [accounts]
-  );
+  const [active, setActive] = useState('Recent');
+  const [search, setSearch] = useState('');
 
-  const report = reportCatalog.find((r) => r.id === reportId);
+  const rows = useMemo(() => {
+    if (!reportId) return [];
+    const leadRows = leads.slice(0, 4).map((lead) => ({ name: lead.name, type: 'Lead', owner: lead.owner, status: lead.status }));
+    const accountRows = accounts.slice(0, 4).map((account) => ({ name: account.household, type: 'Account', owner: account.accountManager || 'Training Team', status: account.status }));
+    const taskRows = tasks.slice(0, 4).map((task) => ({ name: task.title, type: 'Task', owner: task.owner, status: task.status }));
+    return [...leadRows, ...accountRows, ...taskRows];
+  }, [reportId, leads, accounts, tasks]);
 
-  // No specific report selected: show the catalog list.
-  if (!report) {
+  if (reportId && rows.length > 0) {
     return (
-      <main className="workspace page-bg">
-        <div className="page-header">
-          <div>
-            <p className="eyebrow">Reports</p>
-            <h1>Agency Practice Reports</h1>
-            <span>Pick a report. Each one computes live from the simulator data.</span>
+      <main className="sf-reports-page">
+        <aside className="sf-reports-sidebar">
+          {sideGroups.map((group) => (
+            <div key={group.title}>
+              <h3>{group.title}</h3>
+              {group.items.map((item) => <button key={item} className={active === item ? 'active' : ''} onClick={() => setActive(item)}>{item}</button>)}
+            </div>
+          ))}
+        </aside>
+        <section className="sf-report-content">
+          <header className="sf-report-topbar">
+            <div>
+              <span>Reports</span>
+              <h1>{reportId.split('-').map((part) => part[0]?.toUpperCase() + part.slice(1)).join(' ')}</h1>
+              <p>{rows.length} records • Training report preview</p>
+            </div>
+            <label className="sf-report-search-box"><span>⌕</span><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search report results..." /></label>
+            <button onClick={() => { onToast?.('New Report opened in simulator mode.'); onNavigate('reports'); }}>New Report</button>
+            <button>⚙⌄</button>
+          </header>
+          <div className="sf-table-wrap sf-report-table-preview">
+            <table className="sf-data-table">
+              <thead><tr><th>Name</th><th>Type</th><th>Owner</th><th>Status</th></tr></thead>
+              <tbody>{rows.filter((r) => !search || `${r.name} ${r.type} ${r.owner} ${r.status}`.toLowerCase().includes(search.toLowerCase())).map((row) => <tr key={`${row.type}-${row.name}`}><td>{row.name}</td><td>{row.type}</td><td>{row.owner}</td><td>{row.status}</td></tr>)}</tbody>
+            </table>
           </div>
-        </div>
-        <Panel title="Report Catalog" icon="📊">
-          <div className="card-grid two">
-            {reportCatalog.map((r) => (
-              <button className="report-card" key={r.id} onClick={() => onNavigate(`report:${r.id}`)}>
-                <span>{r.category}</span><h3>{r.title}</h3><p>{r.description}</p><em>Open report →</em>
-              </button>
-            ))}
-          </div>
-        </Panel>
+        </section>
       </main>
     );
   }
 
-  // ---- build the body of the selected report ----
-  let headers = [];
-  let rows = [];
-  let chart = null;
-  let summary = null;
-
-  if (reportId === 'lead-conversion') {
-    const byStatus = LEAD_STATUSES.map((status) => ({ status, count: leads.filter((l) => l.status === status).length }));
-    const max = Math.max(...byStatus.map((b) => b.count), 1);
-    const converted = byStatus.find((b) => b.status === 'Converted')?.count || 0;
-    const lost = byStatus.find((b) => b.status === 'Lost')?.count || 0;
-    const closed = converted + lost;
-    chart = <>{byStatus.map((b) => <Bar key={b.status} label={b.status} value={b.count} max={max} />)}</>;
-    summary = `Conversion rate among closed leads: ${closed ? Math.round((converted / closed) * 100) : 0}% (${converted} converted, ${lost} lost, ${leads.length} total leads).`;
-    headers = ['Status', 'Leads', '% of Pipeline'];
-    rows = byStatus.map((b) => [b.status, b.count, `${leads.length ? Math.round((b.count / leads.length) * 100) : 0}%`]);
-  }
-
-  if (reportId === 'quote-pipeline') {
-    const open = leads.filter((l) => !['Converted', 'Lost'].includes(l.status));
-    headers = ['Lead', 'Line', 'Status', 'Owner', 'Est. Premium', 'Last Activity'];
-    rows = open.map((l) => [l.name, l.product || l.interest, l.status, l.owner, `$${Number(l.premium || 0).toLocaleString()}`, l.lastActivity]);
-    summary = `Open pipeline premium: $${open.reduce((s, l) => s + Number(l.premium || 0), 0).toLocaleString()} across ${open.length} open leads.`;
-  }
-
-  if (reportId === 'open-tasks') {
-    const open = tasks.filter((t) => t.status !== 'Completed');
-    headers = ['Task', 'Related To', 'Owner', 'Priority', 'Due Date', 'State'];
-    rows = open.map((t) => [t.title, `${t.relatedTo} (${t.relatedType})`, t.owner, t.priority,
-      t.dueDate, isOverdue(t.dueDate) ? 'Overdue' : isDueToday(t.dueDate) ? 'Due Today' : 'Scheduled']);
-    summary = `${open.length} open tasks · ${open.filter((t) => isOverdue(t.dueDate)).length} overdue · ${open.filter((t) => isDueToday(t.dueDate)).length} due today.`;
-  }
-
-  if (reportId === 'renewal') {
-    const upcoming = allPolicies
-      .map((p) => ({ ...p, days: daysUntil(p.expiration) }))
-      .filter((p) => typeof p.days === 'number' && p.days >= 0 && p.days <= 90)
-      .sort((a, b) => a.days - b.days);
-    headers = ['Account', 'Policy #', 'Line', 'Status', 'Expiration', 'Days Left', 'Premium'];
-    rows = upcoming.map((p) => [p.household, p.number, p.line, p.status, p.expiration, p.days, `$${p.premium.toLocaleString()}`]);
-    summary = `${upcoming.length} policies expire within 90 days of ${todayISO()}.`;
-  }
-
-  if (reportId === 'policy-summary') {
-    const byLine = {};
-    allPolicies.forEach((p) => {
-      byLine[p.line] = byLine[p.line] || { count: 0, premium: 0 };
-      byLine[p.line].count += 1;
-      byLine[p.line].premium += p.premium;
-    });
-    const entries = Object.entries(byLine).sort((a, b) => b[1].premium - a[1].premium);
-    const max = Math.max(...entries.map(([, v]) => v.premium), 1);
-    chart = <>{entries.map(([line, v]) => <Bar key={line} label={line} value={v.premium} max={max} suffix="" />)}</>;
-    headers = ['Account', 'Policy #', 'Line', 'Status', 'Effective', 'Expiration', 'Premium'];
-    rows = allPolicies.map((p) => [p.household, p.number, p.line, p.status, p.effective, p.expiration, `$${p.premium.toLocaleString()}`]);
-    summary = `Total written premium in simulator: $${allPolicies.reduce((s, p) => s + p.premium, 0).toLocaleString()} across ${allPolicies.length} policies.`;
-  }
-
-  if (reportId === 'claims-activity') {
-    headers = ['Claim #', 'Account', 'Policy', 'Type', 'Date', 'Status', 'Description'];
-    rows = allClaims.map((c) => [c.id, c.household, c.policy, c.type, c.date, c.status, c.description]);
-    summary = `${allClaims.filter((c) => c.status === 'Open').length} open and ${allClaims.filter((c) => c.status !== 'Open').length} closed claims.`;
-  }
-
-  if (reportId === 'agency-activity') {
-    const activity = accounts
-      .flatMap((a) => (a.activity || []).map((entry) => ({ ...entry, household: a.household })))
-      .sort((a, b) => String(b.date).localeCompare(String(a.date)))
-      .slice(0, 25);
-    headers = ['Date', 'Account', 'Author', 'Activity'];
-    rows = activity.map((e) => [e.date, e.household, e.author, e.text]);
-    summary = `Most recent ${rows.length} activity entries across all accounts, plus ${tasks.filter((t) => t.status === 'Completed').length} completed tasks agency-wide.`;
-  }
-
-  if (reportId === 'cross-sell') {
-    const monoline = accounts.filter((a) => a.status === 'Active' && a.policies.length === 1);
-    headers = ['Account', 'Current Line', 'Premium', 'Account Manager', 'Suggested Next Step'];
-    rows = monoline.map((a) => [a.household, a.policies[0].line, `$${a.policies[0].premium.toLocaleString()}`, a.accountManager, 'Create a task for licensed staff to review bundle options.']);
-    summary = `${monoline.length} active accounts hold a single policy line.`;
-  }
-
-  const handleExport = () => {
-    exportToCsv(`${report.id}-${todayISO()}.csv`, headers, rows);
-    onToast('CSV export downloaded (simulated report extract).');
-  };
-
   return (
-    <main className="workspace page-bg">
-      <div className="page-header">
-        <div>
-          <p className="eyebrow">Reports · {report.category}</p>
-          <h1>{report.title} <InfoTip text={report.description} /></h1>
-          <span>{report.description}</span>
-        </div>
-        <div className="button-row">
-          <button className="outline-button" onClick={() => onNavigate('reports-hub')}>← Reports Hub</button>
-          <button className="primary-button" onClick={handleExport}>Export CSV</button>
-        </div>
-      </div>
+    <main className="sf-reports-page">
+      <aside className="sf-reports-sidebar">
+        {sideGroups.map((group) => (
+          <div key={group.title}>
+            <h3>{group.title}</h3>
+            {group.items.map((item) => <button key={item} className={active === item ? 'active' : ''} onClick={() => setActive(item)}>{item}</button>)}
+          </div>
+        ))}
+      </aside>
+      <section className="sf-report-content">
+        <header className="sf-report-topbar">
+          <div>
+            <span>Reports</span>
+            <h1>{active}</h1>
+            <p>0 items</p>
+          </div>
+          <label className="sf-report-search-box"><span>⌕</span><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search recent reports..." /></label>
+          <button onClick={() => onNavigate('reports-hub')}>New Report</button>
+          <button>⚙⌄</button>
+        </header>
 
-      {summary && <Panel title="Summary" icon="🧮"><p className="report-summary">{summary}</p></Panel>}
-      {chart && <Panel title="Chart" icon="📈">{chart}</Panel>}
-      <Panel title="Detail" icon="📋"><ReportTable headers={headers} rows={rows} /></Panel>
+        <div className="sf-reports-empty-panel">
+          <EmptyLightningGraphic variant="desert" />
+          <h2>Recent reports appear here</h2>
+          <p>Go to All Reports to see what's available.</p>
+          <button onClick={() => onNavigate('reports-hub')}>View All Reports</button>
+        </div>
+      </section>
     </main>
   );
 }
