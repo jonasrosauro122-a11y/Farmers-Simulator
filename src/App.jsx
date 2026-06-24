@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import TopNav from './components/TopNav.jsx';
 import BottomUtilityBar from './components/BottomUtilityBar.jsx';
 import QuoteNewAccountModal from './components/QuoteNewAccountModal.jsx';
@@ -9,6 +10,7 @@ import LeadDetailPage from './pages/LeadDetailPage.jsx';
 import LeadDepotPage from './pages/LeadDepotPage.jsx';
 import AccountsPage from './pages/AccountsPage.jsx';
 import AccountDetailPage from './pages/AccountDetailPage.jsx';
+import CustomersPage from './pages/CustomersPage.jsx';
 import TasksPage from './pages/TasksPage.jsx';
 import ReportsHubPage from './pages/ReportsHubPage.jsx';
 import ReportsPage from './pages/ReportsPage.jsx';
@@ -20,8 +22,15 @@ import LeadImportPage from './pages/LeadImportPage.jsx';
 import DirectMailPage from './pages/DirectMailPage.jsx';
 import CustomHomePage from './pages/CustomHomePage.jsx';
 import TrainingPage from './pages/TrainingPage.jsx';
+import ScenariosPage from './pages/ScenariosPage.jsx';
+import ProductLearningPage from './pages/ProductLearningPage.jsx';
+import QuoteCenterPage from './pages/QuoteCenterPage.jsx';
+import PoliciesPage from './pages/PoliciesPage.jsx';
+import PersonalLinesPage from './pages/PersonalLinesPage.jsx';
+import CommercialLinesPage from './pages/CommercialLinesPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import PlaceholderPage from './pages/PlaceholderPage.jsx';
+import NotFoundPage from './pages/NotFoundPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import { initialDepotLeads, initialLeads } from './data/leads.js';
 import { initialAccounts } from './data/accounts.js';
@@ -31,18 +40,19 @@ import { initialCampaigns } from './data/campaigns.js';
 import { defaultUser } from './data/users.js';
 import { loadLocal, nextId, saveLocal } from './utils/storage.js';
 import { addDaysISO, todayISO } from './utils/dates.js';
+import { pathToState, targetToPath } from './routes.js';
 
 // Default home dashboard layout. Order matters — Custom Home Page lets trainees reorder it.
 export const defaultWidgetLayout = [
-  { key: 'notes', label: 'Yellow Notes', visible: true },
+  { key: 'notes', label: 'Sticky Note', visible: true },
   { key: 'birthdays', label: 'Upcoming Birthdays', visible: true },
-  { key: 'reports', label: 'Reports Hub Shortcut', visible: true },
+  { key: 'reports', label: 'Reports Hub', visible: true },
   { key: 'serviceAlerts', label: 'Service Alerts & Notifications', visible: true },
   { key: 'recommendations', label: 'Recommendation Engine', visible: true },
   { key: 'marketing', label: 'Sales & Marketing Notifications', visible: true },
-  { key: 'tasks', label: 'Tasks - Due Today', visible: true },
+  { key: 'tasks', label: 'Tasks Due Today', visible: true },
   { key: 'news', label: 'Agency News & Resources', visible: true },
-  { key: 'whatsNew', label: 'New to APEX / Help Resources', visible: true }
+  { key: 'whatsNew', label: 'Helpful Links', visible: true }
 ];
 
 function Toast({ toast }) {
@@ -51,57 +61,69 @@ function Toast({ toast }) {
 }
 
 function App() {
-  // ---- routing ----
-  const [currentPage, setCurrentPage] = useState('home');
-  const [pageParam, setPageParam] = useState('');
-  const [selectedLeadId, setSelectedLeadId] = useState(null);
-  const [selectedAccountId, setSelectedAccountId] = useState(null);
+  // ---- routing (URL-driven) ----
+  const location = useLocation();
+  const routerNavigate = useNavigate();
+  const route = useMemo(() => pathToState(location.pathname), [location.pathname]);
+  const currentPage = route.page;
+  const pageParam = route.param || '';
+  const selectedLeadId = route.leadId || null;
+  const selectedAccountId = route.accountId || null;
 
   // ---- trainee login/session ----
-  const [traineeSession, setTraineeSession] = useState(() => loadLocal('apexCrm2.traineeSession', null));
-  const [lastLogin, setLastLogin] = useState(() => loadLocal('apexCrm2.lastLogin', null));
+  const [traineeSession, setTraineeSession] = useState(() => loadLocal('apexCrm3.traineeSession', null));
+  const [lastLogin, setLastLogin] = useState(() => loadLocal('apexCrm3.lastLogin', null));
 
-  // ---- persisted simulator data (v2 keys so older saves don't break the new shape) ----
+  // ---- persisted simulator data ----
   const [user, setUser] = useState(() => {
-    const session = loadLocal('apexCrm2.traineeSession', null);
+    const session = loadLocal('apexCrm3.traineeSession', null);
     return session
       ? { ...defaultUser, name: session.firstName, fullName: session.displayName, firstName: session.firstName, lastName: session.lastName, batch: session.batch, role: 'Insurance CRM Trainee' }
-      : loadLocal('apexCrm2.user', defaultUser);
+      : loadLocal('apexCrm3.user', defaultUser);
   });
-  const [leads, setLeads] = useState(() => loadLocal('apexCrm2.leads', initialLeads));
-  const [depotLeads, setDepotLeads] = useState(() => loadLocal('apexCrm2.depot', initialDepotLeads));
-  const [claimedHistory, setClaimedHistory] = useState(() => loadLocal('apexCrm2.claimed', []));
-  const [accounts, setAccounts] = useState(() => loadLocal('apexCrm2.accounts', initialAccounts));
-  const [tasks, setTasks] = useState(() => loadLocal('apexCrm2.tasks', initialTasks));
-  const [alerts, setAlerts] = useState(() => loadLocal('apexCrm2.alerts', initialAlerts));
-  const [campaigns, setCampaigns] = useState(() => loadLocal('apexCrm2.campaigns', initialCampaigns));
-  const [widgetLayout, setWidgetLayout] = useState(() => loadLocal('apexCrm2.widgets', defaultWidgetLayout));
-  const [recentReports, setRecentReports] = useState(() => loadLocal('apexCrm2.recentReports', []));
-  const [stickyNote, setStickyNote] = useState(() => loadLocal('apexCrm2.stickyNote', ''));
+  const [leads, setLeads] = useState(() => loadLocal('apexCrm3.leads', initialLeads));
+  const [depotLeads, setDepotLeads] = useState(() => loadLocal('apexCrm3.depot', initialDepotLeads));
+  const [claimedHistory, setClaimedHistory] = useState(() => loadLocal('apexCrm3.claimed', []));
+  const [accounts, setAccounts] = useState(() => loadLocal('apexCrm3.accounts', initialAccounts));
+  const [tasks, setTasks] = useState(() => loadLocal('apexCrm3.tasks', initialTasks));
+  const [alerts, setAlerts] = useState(() => loadLocal('apexCrm3.alerts', initialAlerts));
+  const [campaigns, setCampaigns] = useState(() => loadLocal('apexCrm3.campaigns', initialCampaigns));
+  const [widgetLayout, setWidgetLayout] = useState(() => loadLocal('apexCrm3.widgets', defaultWidgetLayout));
+  const [recentReports, setRecentReports] = useState(() => loadLocal('apexCrm3.recentReports', []));
+  const [stickyNote, setStickyNote] = useState(() => loadLocal('apexCrm3.stickyNote', ''));
 
   // ---- ui state ----
   const [leadModal, setLeadModal] = useState(null);   // { mode: 'new' | 'account' }
   const [taskModal, setTaskModal] = useState(null);   // { defaults: {...} }
   const [toast, setToast] = useState('');
 
-  useEffect(() => saveLocal('apexCrm2.traineeSession', traineeSession), [traineeSession]);
-  useEffect(() => saveLocal('apexCrm2.lastLogin', lastLogin), [lastLogin]);
-  useEffect(() => saveLocal('apexCrm2.user', user), [user]);
-  useEffect(() => saveLocal('apexCrm2.leads', leads), [leads]);
-  useEffect(() => saveLocal('apexCrm2.depot', depotLeads), [depotLeads]);
-  useEffect(() => saveLocal('apexCrm2.claimed', claimedHistory), [claimedHistory]);
-  useEffect(() => saveLocal('apexCrm2.accounts', accounts), [accounts]);
-  useEffect(() => saveLocal('apexCrm2.tasks', tasks), [tasks]);
-  useEffect(() => saveLocal('apexCrm2.alerts', alerts), [alerts]);
-  useEffect(() => saveLocal('apexCrm2.campaigns', campaigns), [campaigns]);
-  useEffect(() => saveLocal('apexCrm2.widgets', widgetLayout), [widgetLayout]);
-  useEffect(() => saveLocal('apexCrm2.recentReports', recentReports), [recentReports]);
-  useEffect(() => saveLocal('apexCrm2.stickyNote', stickyNote), [stickyNote]);
+  useEffect(() => saveLocal('apexCrm3.traineeSession', traineeSession), [traineeSession]);
+  useEffect(() => saveLocal('apexCrm3.lastLogin', lastLogin), [lastLogin]);
+  useEffect(() => saveLocal('apexCrm3.user', user), [user]);
+  useEffect(() => saveLocal('apexCrm3.leads', leads), [leads]);
+  useEffect(() => saveLocal('apexCrm3.depot', depotLeads), [depotLeads]);
+  useEffect(() => saveLocal('apexCrm3.claimed', claimedHistory), [claimedHistory]);
+  useEffect(() => saveLocal('apexCrm3.accounts', accounts), [accounts]);
+  useEffect(() => saveLocal('apexCrm3.tasks', tasks), [tasks]);
+  useEffect(() => saveLocal('apexCrm3.alerts', alerts), [alerts]);
+  useEffect(() => saveLocal('apexCrm3.campaigns', campaigns), [campaigns]);
+  useEffect(() => saveLocal('apexCrm3.widgets', widgetLayout), [widgetLayout]);
+  useEffect(() => saveLocal('apexCrm3.recentReports', recentReports), [recentReports]);
+  useEffect(() => saveLocal('apexCrm3.stickyNote', stickyNote), [stickyNote]);
   useEffect(() => {
     if (!toast) return undefined;
     const timeout = window.setTimeout(() => setToast(''), 2800);
     return () => window.clearTimeout(timeout);
   }, [toast]);
+
+  // Keep the URL and the login state in sync (deep links + refresh friendly).
+  useEffect(() => {
+    if (!traineeSession && location.pathname !== '/login') {
+      routerNavigate('/login', { replace: true });
+    } else if (traineeSession && (location.pathname === '/login' || location.pathname === '/')) {
+      routerNavigate('/dashboard', { replace: true });
+    }
+  }, [traineeSession, location.pathname, routerNavigate]);
 
   const selectedLead = useMemo(() => leads.find((lead) => lead.id === selectedLeadId), [leads, selectedLeadId]);
   const selectedAccount = useMemo(() => accounts.find((account) => account.id === selectedAccountId), [accounts, selectedAccountId]);
@@ -127,17 +149,13 @@ function App() {
     setTraineeSession(session);
     setLastLogin(session);
     setUser({ ...defaultUser, name: firstName, fullName: displayName, firstName, lastName, batch, role: 'Insurance CRM Trainee' });
-    setCurrentPage('home');
-    setPageParam('');
+    routerNavigate('/dashboard');
     showToast(`Welcome, ${firstName}.`);
   };
 
   const handleLogout = () => {
     setTraineeSession(null);
-    setCurrentPage('home');
-    setPageParam('');
-    setSelectedLeadId(null);
-    setSelectedAccountId(null);
+    routerNavigate('/login');
   };
 
   // Navigation accepts "page" or "page:param" (e.g. tasks:today, alerts:Critical, report:renewal).
@@ -145,19 +163,13 @@ function App() {
     const [page, param = ''] = String(target).split(':');
     if (page === 'report' && param) {
       setRecentReports((items) => [param, ...items.filter((id) => id !== param)].slice(0, 5));
-      setCurrentPage('reports');
-      setPageParam(param);
-    } else {
-      setCurrentPage(page);
-      setPageParam(param);
     }
-    if (page !== 'lead-detail') setSelectedLeadId(null);
-    if (page !== 'account-detail') setSelectedAccountId(null);
+    routerNavigate(targetToPath(target));
     window.scrollTo({ top: 0 });
   };
 
-  const selectLead = (id) => { setSelectedLeadId(id); setCurrentPage('lead-detail'); setPageParam(''); window.scrollTo({ top: 0 }); };
-  const selectAccount = (id) => { setSelectedAccountId(id); setCurrentPage('account-detail'); setPageParam(''); window.scrollTo({ top: 0 }); };
+  const selectLead = (id) => { routerNavigate(`/leads/${id}`); window.scrollTo({ top: 0 }); };
+  const selectAccount = (id) => { routerNavigate(`/accounts/${id}`); window.scrollTo({ top: 0 }); };
 
   // ---- lead actions ----
   const updateLead = (id, updates) => setLeads((items) => items.map((lead) => (lead.id === id ? { ...lead, ...updates } : lead)));
@@ -265,18 +277,17 @@ function App() {
   const createTrainingAlert = () => {
     const alert = {
       id: nextId('AL', alerts),
-      category: 'Pending',
+      category: 'Critical & Pending Alerts',
       severity: 'Medium',
       date: todayISO(),
       read: false,
       title: 'New training alert created',
-      body: 'This is a simulator alert created from the APEX navigation dropdown. Review it, mark it read, or create a task from it.',
+      body: 'This is a simulator alert created from the navigation dropdown. Review it, mark it read, or create a task from it.',
       relatedTo: 'Training Simulator',
       suggestedAction: 'Review the alert and route it according to the training workflow.'
     };
     setAlerts((items) => [alert, ...items]);
-    setCurrentPage('alerts');
-    setPageParam('Pending');
+    routerNavigate('/alerts/Critical%20%26%20Pending%20Alerts');
     showToast('New alert created.');
   };
 
@@ -291,10 +302,14 @@ function App() {
     setWidgetLayout(defaultWidgetLayout);
     setRecentReports([]);
     setStickyNote('');
-    setSelectedLeadId(null);
-    setSelectedAccountId(null);
-    setCurrentPage('home');
-    setPageParam('');
+    try {
+      localStorage.removeItem('apexCrm3.book');
+      localStorage.removeItem('apexCrm3.training');
+      localStorage.removeItem('apexCrm3.scenarioScores');
+    } catch {
+      // ignore storage errors
+    }
+    routerNavigate('/dashboard');
     showToast('Demo data reset to defaults.');
   };
 
@@ -323,6 +338,8 @@ function App() {
         return <AccountsPage accounts={accounts} onSelectAccount={selectAccount} onNewAccount={() => setLeadModal({ mode: 'account' })} />;
       case 'account-detail':
         return <AccountDetailPage account={selectedAccount} user={user} tasks={tasks} onBack={() => navigate('accounts')} onUpdateAccount={updateAccount} onUpdateTask={updateTask} onCreateTask={(defaults) => openTaskModal(defaults)} onToast={showToast} />;
+      case 'customers':
+        return <CustomersPage onNavigate={navigate} onToast={showToast} />;
       case 'tasks':
         return <TasksPage tasks={tasks} user={user} initialView={pageParam} onUpdateTask={updateTask} onNewTask={() => openTaskModal()} />;
       case 'reports-hub':
@@ -332,9 +349,9 @@ function App() {
       case 'alerts-hub':
         return <AlertsHubPage alerts={alerts} onNavigate={navigate} />;
       case 'alerts':
-        return <AlertsPage alerts={alerts} categoryFilter={pageParam || 'All'} onSetRead={setAlertRead} onMarkAllRead={markAllAlertsRead} onCreateTask={(defaults) => openTaskModal(defaults)} />;
+        return <AlertsPage alerts={alerts} categoryFilter={pageParam || 'All'} onSetRead={setAlertRead} onMarkAllRead={markAllAlertsRead} onCreateTask={(defaults) => openTaskModal(defaults)} onCreateAlert={createTrainingAlert} />;
       case 'service-requests':
-        return <ServiceRequestsPage onToast={showToast} />;
+        return <ServiceRequestsPage onToast={showToast} onCreateTask={(defaults) => openTaskModal(defaults)} />;
       case 'analytics':
         return <AnalyticsPage leads={leads} accounts={accounts} tasks={tasks} claimedHistory={claimedHistory} />;
       case 'lead-import':
@@ -344,17 +361,30 @@ function App() {
       case 'custom-home':
         return <CustomHomePage widgetLayout={widgetLayout} onChange={setWidgetLayout} onReset={() => { setWidgetLayout(defaultWidgetLayout); showToast('Default layout restored.'); }} onNavigate={navigate} />;
       case 'training':
-        return <TrainingPage onNavigate={navigate} onToast={showToast} />;
+        return <TrainingPage onNavigate={navigate} onToast={showToast} onNewLead={() => setLeadModal({ mode: 'new' })} onNewAccount={() => setLeadModal({ mode: 'account' })} onNewTask={(defaults) => openTaskModal(defaults)} />;
+      case 'scenarios':
+        return <ScenariosPage onNavigate={navigate} onToast={showToast} />;
+      case 'product-learning':
+        return <ProductLearningPage onNavigate={navigate} />;
+      case 'quote-center':
+        return <QuoteCenterPage onNavigate={navigate} onToast={showToast} onNewLead={() => setLeadModal({ mode: 'new' })} onNewTask={(defaults) => openTaskModal(defaults)} />;
+      case 'policies':
+        return <PoliciesPage onNavigate={navigate} onToast={showToast} />;
+      case 'personal-lines':
+        return <PersonalLinesPage onNavigate={navigate} />;
+      case 'commercial-lines':
+        return <CommercialLinesPage onNavigate={navigate} />;
       case 'settings':
         return <SettingsPage user={user} setUser={setUser} trainee={traineeSession} setTrainee={setTraineeSession} onResetData={resetDemoData} onLogout={handleLogout} />;
       case 'opportunities':
-      case 'insurance-policies':
       case 'claims':
       case 'calendar':
       case 'workable-lists':
       case 'account-tags':
       case 'preference-center':
         return <PlaceholderPage pageId={currentPage} onNavigate={navigate} />;
+      case 'not-found':
+        return <NotFoundPage onNavigate={navigate} />;
       default:
         return <HomePage user={user} leads={leads} accounts={accounts} tasks={tasks} alerts={alerts} depotLeads={depotLeads} onNavigate={navigate} onNewLead={() => setLeadModal({ mode: 'new' })} widgetLayout={widgetLayout} stickyNote={stickyNote} onStickyNoteChange={setStickyNote} />;
     }
