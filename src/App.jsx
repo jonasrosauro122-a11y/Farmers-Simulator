@@ -11,6 +11,10 @@ import LeadDepotPage from './pages/LeadDepotPage.jsx';
 import AccountsPage from './pages/AccountsPage.jsx';
 import AccountDetailPage from './pages/AccountDetailPage.jsx';
 import CustomersPage from './pages/CustomersPage.jsx';
+import CustomerInformationPage from './pages/CustomerInformationPage.jsx';
+import BillingCenterPage from './pages/BillingCenterPage.jsx';
+import ServiceOpsPage from './pages/ServiceOpsPage.jsx';
+import AgencyResourcesPage from './pages/AgencyResourcesPage.jsx';
 import TasksPage from './pages/TasksPage.jsx';
 import ReportsHubPage from './pages/ReportsHubPage.jsx';
 import ReportsPage from './pages/ReportsPage.jsx';
@@ -37,6 +41,7 @@ import { initialAccounts } from './data/accounts.js';
 import { initialTasks } from './data/tasks.js';
 import { initialAlerts } from './data/alerts.js';
 import { initialCampaigns } from './data/campaigns.js';
+import { serviceRequestRows } from './data/serviceRequests.js';
 import { defaultUser } from './data/users.js';
 import { clearStoreKeys, hydrateStore, loadLocal, nextId, saveLocal } from './utils/storage.js';
 import { addDaysISO, todayISO } from './utils/dates.js';
@@ -91,6 +96,7 @@ function Workspace({ session, onSignOut }) {
   const [tasks, setTasks] = useState(() => loadLocal('apexCrm3.tasks', initialTasks));
   const [alerts, setAlerts] = useState(() => loadLocal('apexCrm3.alerts', initialAlerts));
   const [campaigns, setCampaigns] = useState(() => loadLocal('apexCrm3.campaigns', initialCampaigns));
+  const [serviceRequests, setServiceRequests] = useState(() => loadLocal('apexCrm3.serviceRequests', serviceRequestRows));
   const [widgetLayout, setWidgetLayout] = useState(() => loadLocal('apexCrm3.widgets', defaultWidgetLayout));
   const [recentReports, setRecentReports] = useState(() => loadLocal('apexCrm3.recentReports', []));
   const [stickyNote, setStickyNote] = useState(() => loadLocal('apexCrm3.stickyNote', ''));
@@ -108,6 +114,7 @@ function Workspace({ session, onSignOut }) {
   useEffect(() => saveLocal('apexCrm3.tasks', tasks), [tasks]);
   useEffect(() => saveLocal('apexCrm3.alerts', alerts), [alerts]);
   useEffect(() => saveLocal('apexCrm3.campaigns', campaigns), [campaigns]);
+  useEffect(() => saveLocal('apexCrm3.serviceRequests', serviceRequests), [serviceRequests]);
   useEffect(() => saveLocal('apexCrm3.widgets', widgetLayout), [widgetLayout]);
   useEffect(() => saveLocal('apexCrm3.recentReports', recentReports), [recentReports]);
   useEffect(() => saveLocal('apexCrm3.stickyNote', stickyNote), [stickyNote]);
@@ -264,17 +271,49 @@ function Workspace({ session, onSignOut }) {
   const openTaskModal = (defaults = {}) => setTaskModal({ defaults });
 
   // ---- alert actions ----
-  const setAlertRead = (id, read) => setAlerts((items) => items.map((alert) => (alert.id === id ? { ...alert, read } : alert)));
-  const markAllAlertsRead = () => { setAlerts((items) => items.map((alert) => ({ ...alert, read: true }))); showToast('All alerts marked read.'); };
+  const setAlertRead = (id, read) => setAlerts((items) => items.map((alert) => (alert.id === id ? { ...alert, read, status: read ? 'Completed' : (alert.status === 'Completed' ? 'In Process' : alert.status) } : alert)));
+  const updateAlert = (id, updates) => setAlerts((items) => items.map((alert) => (alert.id === id ? { ...alert, ...updates, read: updates.status ? updates.status === 'Completed' : alert.read } : alert)));
+  const markAllAlertsRead = () => { setAlerts((items) => items.map((alert) => ({ ...alert, read: true, status: 'Completed' }))); showToast('All alerts marked read.'); };
+
+  // ---- service request actions ----
+  const ASSIGNEES = ['Unassigned', 'Service Team', 'Processing Queue', 'Billing Queue', 'Personal Lines Team', 'Commercial Service', 'Audit Queue', 'Retention Queue'];
+  const addServiceRequest = (request) => {
+    const id = `SR-${Math.floor(100000000 + Math.random() * 899999999)}`;
+    const record = {
+      id,
+      status: 'Open',
+      subStatus: request.subStatus || 'New / Unassigned',
+      alertStatus: '',
+      dateOpened: new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
+      estimatedCompletion: '—',
+      owner: request.owner || 'Unassigned',
+      priority: request.priority || 'Normal',
+      notes: [],
+      ...request
+    };
+    setServiceRequests((items) => [record, ...items]);
+    showToast(`Service request ${id} created.`);
+    return record;
+  };
+  const updateServiceRequest = (id, updates) => setServiceRequests((items) => items.map((req) => (req.id === id ? { ...req, ...updates } : req)));
+  const addServiceRequestNote = (id, text) => setServiceRequests((items) => items.map((req) => (
+    req.id === id ? { ...req, notes: [{ date: todayISO(), author: user.name, text }, ...(req.notes || [])] } : req
+  )));
   const createTrainingAlert = () => {
     const alert = {
       id: nextId('AL', alerts),
+      alertName: `Alert ${Math.floor(200000000 + Math.random() * 9999999)}`,
       category: 'Critical & Pending Alerts',
+      line: 'Personal Lines',
       severity: 'Medium',
+      status: 'New',
       date: todayISO(),
       read: false,
+      account: 'Training Simulator',
+      assignedTo: 'Unassigned',
+      linkedTo: 'Training Household',
       title: 'New training alert created',
-      body: 'This is a simulator alert created from the navigation dropdown. Review it, mark it read, or create a task from it.',
+      body: 'This is a simulator alert created from the navigation dropdown. Review it, update its status, assign it, or create a task from it.',
       relatedTo: 'Training Simulator',
       suggestedAction: 'Review the alert and route it according to the training workflow.'
     };
@@ -291,6 +330,7 @@ function Workspace({ session, onSignOut }) {
     setTasks(initialTasks);
     setAlerts(initialAlerts);
     setCampaigns(initialCampaigns);
+    setServiceRequests(serviceRequestRows);
     setWidgetLayout(defaultWidgetLayout);
     setRecentReports([]);
     setStickyNote('');
@@ -322,6 +362,10 @@ function Workspace({ session, onSignOut }) {
         return <AccountDetailPage account={selectedAccount} user={user} tasks={tasks} onBack={() => navigate('accounts')} onUpdateAccount={updateAccount} onUpdateTask={updateTask} onCreateTask={(defaults) => openTaskModal(defaults)} onToast={showToast} />;
       case 'customers':
         return <CustomersPage onNavigate={navigate} onToast={showToast} />;
+      case 'customer-info':
+        return <CustomerInformationPage accounts={accounts} onSelectAccount={selectAccount} onUpdateAccount={updateAccount} onNavigate={navigate} onToast={showToast} />;
+      case 'billing':
+        return <BillingCenterPage accounts={accounts} onUpdateAccount={updateAccount} onCreateTask={(defaults) => openTaskModal(defaults)} onNavigate={navigate} onToast={showToast} />;
       case 'tasks':
         return <TasksPage tasks={tasks} user={user} initialView={pageParam} onUpdateTask={updateTask} onNewTask={() => openTaskModal()} />;
       case 'reports-hub':
@@ -329,11 +373,13 @@ function Workspace({ session, onSignOut }) {
       case 'reports':
         return <ReportsPage reportId={pageParam} leads={leads} accounts={accounts} tasks={tasks} onNavigate={navigate} onToast={showToast} />;
       case 'alerts-hub':
-        return <AlertsHubPage alerts={alerts} onNavigate={navigate} />;
+        return <AlertsHubPage alerts={alerts} onNavigate={navigate} onToast={showToast} />;
       case 'alerts':
-        return <AlertsPage alerts={alerts} categoryFilter={pageParam || 'All'} onSetRead={setAlertRead} onMarkAllRead={markAllAlertsRead} onCreateTask={(defaults) => openTaskModal(defaults)} onCreateAlert={createTrainingAlert} />;
+        return <AlertsPage alerts={alerts} categoryFilter={pageParam || 'All'} assignees={ASSIGNEES} onSetRead={setAlertRead} onUpdateAlert={updateAlert} onMarkAllRead={markAllAlertsRead} onCreateTask={(defaults) => openTaskModal(defaults)} onCreateAlert={createTrainingAlert} onNavigate={navigate} />;
       case 'service-requests':
-        return <ServiceRequestsPage onToast={showToast} onCreateTask={(defaults) => openTaskModal(defaults)} />;
+        return <ServiceRequestsPage serviceRequests={serviceRequests} assignees={ASSIGNEES} onCreateRequest={addServiceRequest} onUpdateRequest={updateServiceRequest} onAddNote={addServiceRequestNote} onToast={showToast} onCreateTask={(defaults) => openTaskModal(defaults)} onNavigate={navigate} />;
+      case 'service-ops':
+        return <ServiceOpsPage serviceRequests={serviceRequests} onCreateRequest={addServiceRequest} onNavigate={navigate} onCreateTask={(defaults) => openTaskModal(defaults)} onToast={showToast} />;
       case 'analytics':
         return <AnalyticsPage leads={leads} accounts={accounts} tasks={tasks} claimedHistory={claimedHistory} />;
       case 'lead-import':
@@ -353,9 +399,11 @@ function Workspace({ session, onSignOut }) {
       case 'policies':
         return <PoliciesPage onNavigate={navigate} onToast={showToast} />;
       case 'personal-lines':
-        return <PersonalLinesPage onNavigate={navigate} />;
+        return <PersonalLinesPage onNavigate={navigate} accounts={accounts} onSelectAccount={selectAccount} onUpdateAccount={updateAccount} onToast={showToast} />;
       case 'commercial-lines':
-        return <CommercialLinesPage onNavigate={navigate} />;
+        return <CommercialLinesPage onNavigate={navigate} accounts={accounts} onSelectAccount={selectAccount} onUpdateAccount={updateAccount} onToast={showToast} />;
+      case 'agency-resources':
+        return <AgencyResourcesPage onNavigate={navigate} onToast={showToast} />;
       case 'settings':
         return <SettingsPage user={user} setUser={setUser} trainee={trainee} setTrainee={updateTrainee} onResetData={resetDemoData} onLogout={handleLogout} />;
       case 'opportunities':

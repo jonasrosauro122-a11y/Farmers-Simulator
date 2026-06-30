@@ -3345,3 +3345,632 @@ body {
 .boot-spinner { width: 38px; height: 38px; border-radius: 50%; border: 4px solid #c9def7; border-top-color: var(--blue); animation: boot-spin 0.8s linear infinite; }
 @keyframes boot-spin { to { transform: rotate(360deg); } }
 .auth-notice code { background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+
+/* ===== Portal upgrade: customer info, billing, service ops, resources ===== */
+.portal-page .panel,
+.agency-resources-page .panel {
+  overflow: hidden;
+}
+
+.portal-customer-layout,
+.billing-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 310px) 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.portal-customer-rail,
+.billing-rail {
+  position: sticky;
+  top: 112px;
+}
+
+.portal-account-list {
+  display: grid;
+  gap: 10px;
+}
+
+.portal-account-card {
+  appearance: none;
+  width: 100%;
+  border: 1px solid #d7dce7;
+  border-radius: 12px;
+  background: #fff;
+  padding: 12px;
+  text-align: left;
+  display: grid;
+  gap: 4px;
+  color: #172033;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(22, 32, 51, 0.04);
+}
+
+.portal-account-card:hover,
+.portal-account-card.active {
+  border-color: #1a5fb4;
+  box-shadow: 0 0 0 3px rgba(26, 95, 180, 0.13);
+}
+
+.portal-account-card span {
+  color: #4d627d;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.portal-account-card strong {
+  font-size: 0.96rem;
+}
+
+.portal-account-card small,
+.portal-account-card em {
+  color: #5b6980;
+  font-style: normal;
+}
+
+.portal-record-area,
+.billing-record-area {
+  display: grid;
+  gap: 16px;
+}
+
+.portal-record-header {
+  display: grid;
+  grid-template-columns: 1fr minmax(230px, 300px);
+  gap: 16px;
+  align-items: start;
+  padding: 14px 14px 4px;
+}
+
+.portal-record-header h2 {
+  font-size: 1.55rem;
+  margin: 4px 0;
+  color: #17365d;
+}
+
+.portal-record-header span {
+  color: #5f6f86;
+}
+
+.portal-contact-card {
+  border: 1px solid #d7dce7;
+  border-radius: 10px;
+  padding: 12px;
+  display: grid;
+  gap: 6px;
+  background: #f7f9fc;
+}
+
+.portal-contact-card button,
+.doc-link-row,
+.table-text-link {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #0b5cab;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+
+.table-text-link:hover,
+.doc-link-row:hover {
+  text-decoration: underline;
+}
+
+.portal-blue-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  border: 1px solid #0f4f9f;
+  background: #0f4f9f;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.portal-blue-strip > div {
+  background: #f8fbff;
+  padding: 12px;
+  border-right: 1px solid #c8d9f1;
+  display: grid;
+  gap: 4px;
+}
+
+.portal-blue-strip > div:last-child {
+  border-right: 0;
+}
+
+.portal-blue-strip span {
+  color: #486178;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.portal-blue-strip strong,
+.portal-blue-strip button {
+  color: #14345d;
+  font-weight: 800;
+}
+
+.portal-two-col {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.portal-mini-panel {
+  border: 1px solid #dbe1ec;
+  border-radius: 12px;
+  padding: 14px;
+  background: #fff;
+}
+
+.portal-mini-panel h3 {
+  color: #17365d;
+  margin-bottom: 10px;
+}
+
+.portal-mini-panel p {
+  display: grid;
+  grid-template-columns: minmax(120px, 210px) 1fr;
+  gap: 10px;
+  margin: 8px 0;
+}
+
+.portal-mini-panel span {
+  color: #56657a;
+}
+
+.compact-list {
+  padding: 0;
+}
+
+.doc-link-row {
+  display: block;
+  padding: 8px 0;
+  border-bottom: 1px solid #eef1f6;
+}
+
+.outline-button.mini {
+  padding: 5px 9px;
+  font-size: 0.78rem;
+}
+
+.portal-section-card {
+  display: grid;
+  gap: 14px;
+  margin: 18px 0;
+  padding: 16px;
+  border: 1px solid #dce3ef;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+}
+
+.portal-section-card > div:first-child h2 {
+  color: #17365d;
+  margin: 2px 0;
+}
+
+.billing-note-box {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.lead-info-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.lead-info-summary > div {
+  background: #fff;
+  border: 1px solid #d8e1ef;
+  border-radius: 999px;
+  padding: 8px 12px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 2px rgba(22, 32, 51, 0.04);
+}
+
+.lead-info-summary span {
+  color: #66728a;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.lead-info-summary strong {
+  color: #12365f;
+}
+
+.service-ops-page {
+  background: #fff;
+  min-height: calc(100vh - 112px);
+  padding-bottom: 36px;
+}
+
+.service-ops-topbar {
+  max-width: 1180px;
+  margin: 18px auto 0;
+  background: #003f8f;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 22px;
+  border-radius: 4px 4px 0 0;
+}
+
+.service-ops-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.service-ops-topbar select {
+  border: 1px solid #b9d2f5;
+  border-radius: 4px;
+  padding: 6px 8px;
+}
+
+.service-ops-nav {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  border-bottom: 1px solid #d8dde8;
+}
+
+.service-ops-nav button {
+  border: 0;
+  background: transparent;
+  padding: 14px 4px 12px;
+  color: #234060;
+  font-weight: 700;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+}
+
+.service-ops-nav button.active {
+  color: #003f8f;
+  border-bottom-color: #d9273e;
+}
+
+.service-ops-home,
+.service-ops-list-section {
+  max-width: 1180px;
+  margin: 28px auto;
+}
+
+.service-ops-home h1,
+.service-ops-list-section h1 {
+  text-align: center;
+  color: #254a7a;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 2rem;
+  margin-bottom: 18px;
+}
+
+.service-ops-prompt-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  max-width: 660px;
+  margin: 0 auto 26px;
+}
+
+.service-ops-prompt-cards button {
+  background: #fff;
+  border: 1px solid #d8dde8;
+  border-radius: 4px;
+  padding: 14px;
+  color: #526174;
+  cursor: pointer;
+}
+
+.ask-service-box {
+  display: grid;
+  grid-template-columns: 1fr 120px 100px;
+  gap: 8px;
+  max-width: 720px;
+  margin: 0 auto 22px;
+}
+
+.ask-service-box input,
+.ask-service-box select {
+  border: 1px solid #ccd7e7;
+  padding: 10px 12px;
+  border-radius: 4px;
+}
+
+.ask-service-box button,
+.service-ops-filterbar button,
+.service-ops-side-card button {
+  background: #0f62a6;
+  color: #fff;
+  border: 0;
+  border-radius: 4px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.service-answer-card {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.service-answer-flow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.service-answer-flow span {
+  background: #eef5ff;
+  border: 1px solid #d1e3fa;
+  border-radius: 999px;
+  text-align: center;
+  padding: 8px;
+  color: #1a4370;
+  font-weight: 800;
+  font-size: 0.8rem;
+}
+
+.service-ops-filterbar {
+  background: #eef0f5;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.service-ops-filterbar input {
+  border: 1px solid #cfd6e2;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.service-ops-list-section > p {
+  text-align: center;
+  color: #69768b;
+}
+
+.service-ops-table-wrap {
+  border-top: 4px solid #17365d;
+}
+
+.service-ops-side-card {
+  margin-top: 14px;
+  border: 1px solid #d9e2ee;
+  border-left: 4px solid #0f62a6;
+  border-radius: 10px;
+  padding: 16px;
+  background: #f8fbff;
+}
+
+.service-ops-side-card dl {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.service-ops-side-card dt {
+  font-size: 0.72rem;
+  color: #6b7890;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.service-ops-create {
+  max-width: 980px;
+  margin: 22px auto;
+  padding: 0;
+}
+
+.agency-resource-topbar {
+  background: #003f8f;
+  color: #fff;
+  display: grid;
+  grid-template-columns: 220px auto 1fr auto auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: 4px;
+}
+
+.agency-resource-topbar input {
+  padding: 8px;
+  border-radius: 2px;
+  border: 0;
+}
+
+.agency-resource-topbar button,
+.agency-resource-nav button,
+.resource-link-columns button,
+.resource-product-hero button {
+  cursor: pointer;
+}
+
+.agency-resource-nav {
+  display: flex;
+  gap: 22px;
+  border-bottom: 1px solid #d8dde8;
+  padding: 12px 0;
+  margin-bottom: 20px;
+}
+
+.agency-resource-nav button {
+  border: 0;
+  background: transparent;
+  color: #254a7a;
+  font-weight: 800;
+}
+
+.compact-resource-header {
+  margin-top: 8px;
+}
+
+.resource-dashboard-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 0.9fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.resource-hero-card {
+  min-height: 160px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #eaf3ff, #ffffff);
+  border: 1px solid #d9e6f8;
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  margin-bottom: 12px;
+}
+
+.resource-hero-card strong {
+  display: block;
+  font-size: 2rem;
+  color: #1d5896;
+}
+
+.resource-hero-card button,
+.resource-product-hero button {
+  background: #0f62a6;
+  color: #fff;
+  border: 0;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-top: 10px;
+}
+
+.resource-news-item,
+.resource-rules-list article {
+  border-top: 1px solid #e3e8f1;
+  padding: 12px 0;
+}
+
+.resource-news-item h3,
+.resource-rules-list button {
+  color: #0f5ca8;
+  font-weight: 800;
+}
+
+.resource-date-list {
+  display: grid;
+  gap: 10px;
+}
+
+.resource-date-list div {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 10px;
+  background: #f2f7fd;
+  padding: 10px;
+  border-left: 4px solid #1d69b3;
+}
+
+.resource-product-page {
+  margin-top: 18px;
+  background: #fff;
+  border: 1px solid #dce3ef;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.resource-product-hero {
+  min-height: 260px;
+  background: linear-gradient(135deg, #eef5ff 0%, #ffffff 55%, #e8eef7 100%);
+  padding: 34px;
+  display: grid;
+  width: 100%;
+  max-width: 420px;
+  gap: 8px;
+}
+
+.resource-product-hero h2 {
+  color: #17365d;
+  font-size: 2rem;
+}
+
+.resource-link-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  padding: 22px 34px 34px;
+}
+
+.resource-link-columns div {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.resource-link-columns button,
+.resource-rules-list button {
+  border: 0;
+  background: transparent;
+  text-align: left;
+  color: #0f5ca8;
+}
+
+@media (max-width: 980px) {
+  .portal-customer-layout,
+  .billing-layout,
+  .portal-record-header,
+  .portal-two-col,
+  .resource-dashboard-grid,
+  .resource-link-columns {
+    grid-template-columns: 1fr;
+  }
+  .portal-blue-strip,
+  .lead-info-summary,
+  .service-ops-prompt-cards,
+  .service-answer-flow,
+  .service-ops-side-card dl {
+    grid-template-columns: 1fr 1fr;
+  }
+  .portal-customer-rail,
+  .billing-rail {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .portal-blue-strip,
+  .lead-info-summary,
+  .service-ops-prompt-cards,
+  .service-answer-flow,
+  .ask-service-box,
+  .agency-resource-topbar {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Service request notes + alert row states (CRM upgrade) ---- */
+.sr-notes { margin-top: 4px; display: flex; flex-direction: column; gap: 8px; }
+.sr-notes > strong { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: #5b6470; }
+.sr-note-add { display: flex; flex-direction: column; gap: 6px; }
+.sr-note-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto; }
+.sr-note-list li { background: #f4f7fb; border: 1px solid #e3e9f1; border-radius: 8px; padding: 7px 9px; font-size: 12.5px; color: #2b3440; display: flex; flex-direction: column; gap: 2px; }
+.sr-note-list li span { font-size: 11px; color: #7a8493; }
+.sr-note-list li.empty-line { background: none; border: none; color: #9aa3af; font-style: italic; padding: 4px 0; }
+.sf-row-unread { background: #fbfdff; font-weight: 600; }
+.sf-status-new { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #3b82f6; margin-right: 4px; vertical-align: middle; }
+
+/* ---- Agency resources clickable cards (CRM upgrade) ---- */
+.resource-clickable { cursor: pointer; transition: background .12s ease, border-color .12s ease; }
+.resource-clickable:hover { background: #f4f7fb; border-color: #c9d6e6; }
