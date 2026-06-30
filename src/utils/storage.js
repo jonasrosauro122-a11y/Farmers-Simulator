@@ -26,6 +26,7 @@ const KEY_MAP = {
   'apexCrm3.campaigns':    { scope: 'shared', name: 'campaigns' },
   'apexCrm3.book':         { scope: 'shared', name: 'book' },
   'apexCrm3.quoteIntakes': { scope: 'shared', name: 'quoteIntakes' },
+  'apexCrm3.serviceRequests': { scope: 'shared', name: 'serviceRequests' },
   'apexCrm3.widgets':        { scope: 'user', name: 'widgets' },
   'apexCrm3.recentReports':  { scope: 'user', name: 'recentReports' },
   'apexCrm3.stickyNote':     { scope: 'user', name: 'stickyNote' },
