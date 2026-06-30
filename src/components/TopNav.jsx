@@ -21,6 +21,7 @@ const navItems = [
   ] },
   { id: 'alerts-hub', label: 'Alerts Hub' },
   { id: 'service-requests', label: 'Service Requests' },
+  { id: 'service-ops', label: 'Service Ops' },
   { id: 'alerts', label: 'Alerts', dropdown: [{ id: 'new-alert', label: '+ New Alert', special: true }] },
   { id: 'custom-home', label: 'Custom Home Page' },
   { id: 'analytics', label: 'APEX Analytics' },
@@ -40,6 +41,9 @@ const navItems = [
   { id: 'workable-lists', label: 'Workable Lists', dropdown: [{ id: 'reports-hub', label: 'Open Lists' }, { id: 'report:open-tasks', label: 'Open Tasks' }] },
   { id: 'policies', label: 'Policies' },
   { id: 'customers', label: 'Customers' },
+  { id: 'customer-info', label: 'Customer Info' },
+  { id: 'billing', label: 'Billing' },
+  { id: 'agency-resources', label: 'Agency News & Resources' },
   { id: 'account-tags', label: 'Account Tags', dropdown: [{ id: 'accounts', label: 'Tagged Accounts' }] },
   { id: 'preference-center', label: 'Preference Center', dropdown: [{ id: 'settings', label: 'Simulator Preferences' }] }
 ];
