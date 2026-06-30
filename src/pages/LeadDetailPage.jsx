@@ -44,6 +44,13 @@ export default function LeadDetailPage({ lead, user, onBack, onUpdateLead, onCon
           </button>
         </div>
       </div>
+      <div className="lead-info-summary">
+        <div><span>Path</span><strong>New</strong><em>✓</em></div>
+        <div><span>Contacted</span><strong>{lead.status === 'New' ? 'Waiting' : 'Started'}</strong></div>
+        <div><span>Qualified</span><strong>{lead.salesOpportunityScore >= 80 ? 'High Intent' : 'Review'}</strong></div>
+        <div><span>Converted</span><strong>{lead.status === 'Converted' ? 'Complete' : 'Pending'}</strong></div>
+      </div>
+
       <div className="detail-grid">
         <Panel title="Lead Information" icon="👤" action={<InfoTip text="Update the status as you work the lead. Converting creates a Pending account with a starter policy record — licensed staff complete the bind/issue steps." />}>
           <div className="detail-list">
@@ -60,6 +67,9 @@ export default function LeadDetailPage({ lead, user, onBack, onUpdateLead, onCon
             <div><span>Location</span><strong>{[lead.city, lead.state].filter(Boolean).join(', ') || '—'}</strong></div>
             <div><span>Estimated Premium</span><strong>${Number(lead.premium).toLocaleString()}</strong></div>
             <div><span>Lead Source</span><strong>{lead.source}</strong></div>
+            <div><span>Preferred Contact Method</span><strong>{lead.preferredContactMethod || 'Phone'}</strong></div>
+            <div><span>X-Date / Target Date</span><strong>{lead.xDate || '—'}</strong></div>
+            <div><span>Sales Opportunity Score</span><strong>{lead.salesOpportunityScore ? `${lead.salesOpportunityScore}/100` : '—'}</strong></div>
             <div><span>Owner</span><strong>{lead.owner}</strong></div>
             <div><span>Last Activity</span><strong>{lead.lastActivity}</strong></div>
           </div>

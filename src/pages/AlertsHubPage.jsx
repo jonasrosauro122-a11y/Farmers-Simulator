@@ -19,17 +19,23 @@ function trunc(value, length = 20) {
   return value.length > length ? `${value.slice(0, length - 3)}...` : value;
 }
 
-export default function AlertsHubPage({ onNavigate }) {
+export default function AlertsHubPage({ onNavigate, onToast }) {
+  const [rows, setRows] = useState(alertRows);
   const [selectedId, setSelectedId] = useState(alertRows[0].id);
   const [tab, setTab] = useState(tabs[0]);
   const [worked, setWorked] = useState('Unworked');
-  const selected = alertRows.find((row) => row.id === selectedId) || alertRows[0];
+  const selected = rows.find((row) => row.id === selectedId) || rows[0];
 
   const filtered = useMemo(() => {
-    if (tab === 'Claims Alerts') return alertRows.filter((row) => row.category.includes('Claim'));
-    if (tab === 'Renewal Alerts') return alertRows.filter((row) => row.category.includes('Renewal'));
-    return alertRows;
-  }, [tab]);
+    if (tab === 'Claims Alerts') return rows.filter((row) => row.category.includes('Claim'));
+    if (tab === 'Renewal Alerts') return rows.filter((row) => row.category.includes('Renewal'));
+    return rows;
+  }, [tab, rows]);
+
+  const updateSelectedStatus = (status) => {
+    setRows((items) => items.map((row) => row.id === selectedId ? { ...row, status } : row));
+    onToast?.(`Alert ${selectedId} marked ${status}.`);
+  };
 
   return (
     <main className="sf-alerts-hub-page">
@@ -50,9 +56,9 @@ export default function AlertsHubPage({ onNavigate }) {
               <span className="sf-object-icon red">📣</span>
               <div><span>Alerts & Notifications</span><strong>{tab}</strong></div>
             </div>
-            <button disabled>Mark as Completed</button>
-            <button disabled>Mark as in Process</button>
-            <button disabled>Assign To</button>
+            <button onClick={() => updateSelectedStatus('Completed')}>Mark as Completed</button>
+            <button onClick={() => updateSelectedStatus('In Process')}>Mark as in Process</button>
+            <button onClick={() => onToast?.(`Assigned ${selectedId} to trainee queue.`)}>Assign To</button>
             <button>Filter Alerts</button>
             <button>Download⌄</button>
             <button>Select Fields</button>
@@ -96,7 +102,7 @@ export default function AlertsHubPage({ onNavigate }) {
 
         <aside className="sf-alert-detail-panel">
           <div className="sf-path">
-            <span className="done">✓</span><span className="active">In Process</span><span>Completed</span>
+            <span className="done">✓</span><span className={selected.status === 'In Process' ? 'active' : ''}>In Process</span><span className={selected.status === 'Completed' ? 'active' : ''}>Completed</span>
           </div>
           <button className="sf-create-activity">Create Activity</button>
           <div className="sf-customer-summary">
@@ -110,6 +116,7 @@ export default function AlertsHubPage({ onNavigate }) {
             <div><dt>Alert Classification</dt><dd>🔔{selected.priority}</dd></div>
             <div><dt>Due Date</dt><dd>{selected.dueDate}</dd></div>
             <div><dt>Created Date</dt><dd>{selected.createdDate}</dd></div>
+            <div><dt>Status</dt><dd>{selected.status}</dd></div>
             <div><dt>Alert Category</dt><dd>{selected.category}</dd></div>
             <div><dt>Alert Sub-Category</dt><dd>{selected.subCategory}</dd></div>
             <div><dt>LOB</dt><dd>{selected.lob}</dd></div>
