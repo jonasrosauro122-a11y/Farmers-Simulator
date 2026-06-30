@@ -8,7 +8,34 @@ export const LEAD_INTERESTS = ['Auto', 'Home', 'Renters', 'Life', 'Commercial', 
 export const LEAD_SOURCES = ['Website', 'Referral', 'Lead Depot', 'Direct Mail', 'Agency Lead Import', 'Walk-In', 'Phone Inquiry', 'Manual Entry'];
 export const LINES = ['Personal Lines', 'Commercial Lines'];
 
-export const initialLeads = [];
+export const initialLeads = [
+  {
+    id: 'L101', name: 'Aaron Synstegaard', type: 'Personal Lines', interest: 'Home', product: 'Homeowners',
+    priority: 'High', source: 'Website', phone: '(555) 402-9088', email: 'aaron.s@example.com',
+    city: 'Denver', state: 'CO', premium: 2200, owner: 'Training Team', status: 'Contacted',
+    createdDate: todayISO(), lastActivity: 'Needs homeowner quote intake completed before lender deadline.',
+    preferredContactMethod: 'Phone', salesOpportunityScore: 99, xDate: addDaysISO(20),
+    notes: [
+      { date: todayISO(), author: 'Training System', text: 'Lead information seeded from the portal reference: use tabs, contact card, activity, and opportunity score to practice intake.' }
+    ]
+  },
+  {
+    id: 'L102', name: 'Cedar Ridge Landscaping', type: 'Commercial Lines', interest: 'Commercial', product: 'General Liability',
+    priority: 'High', source: 'Referral', phone: '(555) 700-2244', email: 'office@cedarridge.example',
+    city: 'Boise', state: 'ID', premium: 5400, owner: 'Training Team', status: 'New',
+    createdDate: addDaysISO(-1), lastActivity: 'Contract requires proof of GL and possible additional insured wording.',
+    preferredContactMethod: 'Email', salesOpportunityScore: 88, xDate: addDaysISO(35),
+    notes: []
+  },
+  {
+    id: 'L103', name: 'Daniel Foster', type: 'Personal Lines', interest: 'Home', product: 'Homeowners',
+    priority: 'Medium', source: 'Phone Inquiry', phone: '(555) 700-3380', email: 'd.foster@example.com',
+    city: 'Nashville', state: 'TN', premium: 2100, owner: 'Training Team', status: 'Follow-Up',
+    createdDate: addDaysISO(-2), lastActivity: 'Closing in 21 days; lender will need evidence after licensed review.',
+    preferredContactMethod: 'Text/Phone', salesOpportunityScore: 76, xDate: addDaysISO(21),
+    notes: []
+  }
+];
 
 // Unclaimed leads sitting in the Lead Depot queue. Claiming one moves it into "My Leads".
 export const initialDepotLeads = [
